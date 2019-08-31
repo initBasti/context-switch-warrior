@@ -1,0 +1,49 @@
+What should the extension do?
+    periodic checks in the defined time value for the current time and weekday
+    check in .taskrc configuration for fitting context then run command to change
+    if not currently active.
+    Additionally it should check for currently active tasks and stop those after
+    asking the user for permission or on screen lock.
+
+Which parts of taskwarrior does it use?
+    .taskrc for config data
+
+Which libraries do I use?
+
+How do I get the correct time?
+
+How do I check if a task is active?
+
+How do I activate the application after boot automatically?
+
+What are the events where it shouldn't automatically switch?
+
+Should it warn the user before a switch?
+
+How should the application interact with the user?
+
+Default Setup
+---
+    |
+    Contexts
+    ---
+        * Work (tags: work, freelance)
+        * Study (tags: study, programming, coding, hacking)
+        * free-study (tags: study, programming, free, important)
+        * free (tags: free, important)
+
+    Default Schedule:
+    ---
+        * Morning context: study                    | Zone 1
+        * Morning - Afternoon context: work         | Zone 2
+        * Afternoon - Evening context: free-study   | Zone 3
+        * Evening - Sleep context: free             | Zone 4
+
+    Time for Zones:
+    ---
+        * Zone1: 5:30AM - 6:30AM
+        * Zone2: 7:30AM - 2:30PM
+        * Zone3: 3:00PM - 6:00PM
+        * Zone4: 6:00PM - 9:30PM
+
+
