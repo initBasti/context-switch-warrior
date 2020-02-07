@@ -1,3 +1,13 @@
+/**
+ * @file switch.c
+ * @author	Sebastian Fricke
+ * @date	2019-12-01
+ * @brief	Determine if a switch is necessary and validate that there is no exclusion
+ *
+ * Compare exclusions with the active setting.
+ * Compare the zones with current time.
+ * Send commands to task warrior to stop tasks, find active tasks or switch a context
+ */
 #include "include/switch.h"
 #ifndef CONFIG_H
 #include <string.h>
@@ -7,31 +17,25 @@
 extern FILE* popen(const char* command, const char *type);
 extern int pclose(FILE* stream);
 
-/*
- * switchExclusion:
- * Move through the different exclusion objects if any of them matches
- * either the weekday(wd) or the date(y,m,d) stop the program from
- * switching the context
- * @parameter(in): y(year), m(month), d(day), wd(weekday) and the
- * 				   exclusion struct
- * return 		EXLCUSION_MATCH on exclusion
- * 				EXCLUSION_NOMATCH if nothing matches
- * 			    EXLCUSION_ERROR on failure
+/**
+ * @brief	Determine if the current date is excluded from switching the context
+ *
+ * @param[in]	date	tm structure pointer to the current date & time
+ * @param[in]	excl	exclusion structure instance pointer
+ *
+ * @retval	EXLCUSION_MATCH
+ * @retval	EXCLUSION_NOMATCH
+ * @retval	EXLCUSION_ERROR
  */
 EXCLUSION_STATE switchExclusion(struct exclusion* excl, struct tm *date)
 {
-	int y = date->tm_year;
-	int m = date->tm_mon;
-	int d = date->tm_mday;
-	int wd = date->tm_wday;
-
 	if(excl == NULL) {
 		return EXCLUSION_ERROR;
 	}
 	for(int i = 0 ; i < excl->amount ; i++) {
 		if(strncmp(excl->type_name[i], "perm", 5) == 0) {
 			for(int j = 0 ; j<excl->type[i].list_len ; j++) {
-				if(wd == excl->type[i].weekdays[j]-1) {
+				if(date->tm_wday == excl->type[i].weekdays[j]-1) {
 					return EXCLUSION_MATCH;
 				}
 			}
@@ -39,13 +43,13 @@ EXCLUSION_STATE switchExclusion(struct exclusion* excl, struct tm *date)
 		else if(strncmp(excl->type_name[i], "temp", 5) == 0) {
 			if(strncmp(excl->type[i].sub_type, "list", 5) == 0) {
 				for(int j = 0 ; j < excl->type[i].list_len ; j++) {
-					if(dateMatch(&excl->type[i].single_days[j], y, m, d) == 0){
+					if(compareTime(&excl->type[i].single_days[j], date) == TIME_EQUAL){
 						return EXCLUSION_MATCH;
 					}
 				}
 			}
 			else if(strncmp(excl->type[i].sub_type, "range", 6) == 0) {
-				if(rangeMatch(&excl->type[i], y, m, d) == 0) {
+				if(rangeMatch(&excl->type[i], date) == 0) {
 					return EXCLUSION_MATCH;
 				}
 			}
@@ -54,17 +58,21 @@ EXCLUSION_STATE switchExclusion(struct exclusion* excl, struct tm *date)
 	return EXCLUSION_NOMATCH;
 }
 
-/*
- * switchContext:
- * compare the different zones with the current time and return the
- * context command from the matching zone
- * @parameter(in): the config, the time in minutes, the current context
- * @parameter(out): the string containing the command
- * return:	SWITCH_SUCCESS: match & context isn't already set
- * 			SWITCH_NOTNEEDED: match & context is already set
- * 			SWITCH_FAILURE: no match
+/**
+ * @brief	compare the current date, with the zone settings in the config 
+ *
+ * On a match return the context from the zone and a signal for further execution
+ *
+ * @param[in]	conf	config structure instance pointer
+ * @param[in]	time	current time in minutes
+ * @param[in]	current_context	active context in taskwarrior
+ * @param[out]	new_context	context found in the active zone	
+ * 
+ * @retval	SWITCH_SUCCESS	current & new context differ
+ * @retval	SWITCH_NOTNEEDED	current & new context are equal
+ * @retval	SWITCH_FAILURE	time is not within any zone
  */
-SWITCH_STATE switchContext(struct config* conf, int time, char* command,
+SWITCH_STATE switchContext(struct config* conf, int time, char* new_context,
 							char* current_context)
 {
 	int start_time = 0;
@@ -80,11 +88,11 @@ SWITCH_STATE switchContext(struct config* conf, int time, char* command,
 						(conf->ztime[i].end_minute);
 		if(time >= start_time && time <= end_time) {
 			if(strncmp(conf->zone_context[i], current_context, MAX_FIELD) == 0) {
-				strncpy(command, "none", 5);
+				strncpy(new_context, "none", 5);
 				return SWITCH_NOTNEEDED;
 			}
 			else {
-				strncpy(command, conf->zone_context[i], MAX_FIELD);
+				strncpy(new_context, conf->zone_context[i], MAX_FIELD);
 				return SWITCH_SUCCESS;
 			}
 		}
@@ -92,46 +100,50 @@ SWITCH_STATE switchContext(struct config* conf, int time, char* command,
 	return SWITCH_FAILURE;
 }
 
-int dateMatch(struct tm *date, int year, int month, int day)
-{
-	if(!date) {
-		return -1;
-	}
-	return !(date->tm_year==year && date->tm_mon==month && date->tm_mday==day);
-}
-
-int rangeMatch(struct format_type* range, int year, int month, int day)
+/**
+ * @brief	compare if a date is inside a range of 2 dates start->end
+ *
+ * @param[in]	range	sub structure of the exclusion struct contain start, end
+ * @param[in]	date	tm structure of the current date
+ *
+ * @retval	1	SUCCESS date in inbetween start and end
+ * @retval	0	date is NOT inbetween start and end
+ * @retval	-1	FAILURE struct from exclusion struct not found
+ */
+int rangeMatch(struct format_type *range, struct tm *date)
 {
 	if(range == NULL) {
 		return -1;
 	}
 	struct tm start = range->holiday_start;
 	struct tm end = range->holiday_end;
-	if(year < start.tm_year || year > end.tm_year) {
+	if(date->tm_year < start.tm_year || date->tm_year > end.tm_year) {
 		return 1;
 	}
-	if(year == end.tm_year && month > end.tm_mon) {
+	if(date->tm_year == end.tm_year && date->tm_mon > end.tm_mon) {
 		return 1;
 	}
-	if(year == start.tm_year && month < start.tm_mon) {
+	if(date->tm_year == start.tm_year && date->tm_mon < start.tm_mon) {
 		return 1;
 	}
-	if(year == end.tm_year && month == end.tm_mon && day > end.tm_mday) {
+	if(date->tm_year == end.tm_year && date->tm_mon == end.tm_mon && date->tm_mday > end.tm_mday) {
 		return 1;
 	}
-	if(year == start.tm_year && month == start.tm_mon && day < start.tm_mday) {
+	if(date->tm_year == start.tm_year && date->tm_mon == start.tm_mon && date->tm_mday < start.tm_mday) {
 		return 1;
 	}
 	return 0;
 }
 
-/*
- * sendCommand:
- * uses the context string from switchContext and sends it to taskwarrior
+/**
+ * @brief	send a command to taskwarrior to switch to the specified context
+ *
  * watch the reaction from taskwarrior for success
- * parameter(in): The string containing the CONTEXT
- * return:		  0 on SUCCESS
- * 			     -1 on FAILURE
+ *
+ * param[in]	input	specified context
+ *
+ * @retval	0	SUCCESS
+ * @retval	-1	FAILURE
  */
 int sendCommand(char *input)
 {
@@ -155,10 +167,10 @@ int sendCommand(char *input)
 			goto success;
 		}
 		else{
-			printf("Reaction from Taskwarrior:\n\n%s\n", buffer[index]);
+			fprintf(stderr,"Reaction from Taskwarrior:\n\n%s\n", buffer[index]);
 			goto failure;
 		}
-		index++;	
+		index++;
 	}
 	success:
 		pclose(process);
@@ -168,12 +180,13 @@ int sendCommand(char *input)
 		return -1;
 }
 
-/*
- * activeTask:
- * sends a command to check if there is any active taskwarrior task.
+/**
+ * @brief	send a command to taskwarrior to check for active tasks
+ *
  * uses '2<&1' to redirect the stderr output to stdout
- * return:		0 on No active Task
- * 				1 on Active Task
+ *
+ * @retval	0	No active Task
+ * @retval	1	Active Task
  */
 int activeTask()
 {
@@ -189,15 +202,16 @@ int activeTask()
 		return 0;
 	}
 	pclose(process);
-	return 1;	
+	return 1;
 }
 
-/*
- * stopTask:
- * sends a command to stop any Active task on taskwarrior
+/**
+ * @brief	send a command to taskwarrior, stop any Active task
+ *
  * uses '2<&1' to redirect the stderr output to stdout
- * return:		0 on SUCCESS
- * 			   -1 on FAILURE
+ *
+ * @retval	0	SUCCESS
+ * @retval	-1	FAILURE
  */
 int stopTask()
 {
