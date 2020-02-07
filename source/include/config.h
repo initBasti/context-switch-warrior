@@ -12,10 +12,10 @@
 #include <errno.h>
 
 #include "types.h"
-#include "parser.h"
 #include "substring.h"
 #include "helper.h"
 #include "delay.h"
+#include "exclude.h"
 
 extern FILE *popen( const char *command, const char *modes);
 extern int pclose(FILE *stream);
@@ -29,5 +29,9 @@ OPTION_STATE getOption(struct configcontent*, char*, int);
 int indexInList(struct configcontent*, int);
 int syncConfig(struct config*,struct flags*,struct tm*);
 int writeConfig(struct config*, char*);
-int checkExclusion(struct exclusion*, struct tm*);
+int parseConfig(struct configcontent*, struct error*, struct config*);
+void buildBoolFormat(int, char*, char*);
+void addError(struct error*, int, char*, int);
+int dirExist(char*);
+int valueForKey(struct keyvalue*, char*);
 #endif

@@ -65,7 +65,7 @@ FILE_STATE findConfig(char* name, char* path)
 	}
 	strncat(config_path, name, name_len);
 
-	/* the default location is .task in the user home */
+	/* the default location is .task in the user's home */
 	if(dirExist(folder_path) != 0) {
 		mkdir(folder_path, 0777);
 		status = dirExist(folder_path);
@@ -148,7 +148,6 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 		}
 
 
-		/* replace newline with empty string */
 		if(row[rows][(int)strnlen(row[rows], MAX_ROW)-1] == '\n') {
 			row[rows][(int)strnlen(row[rows], MAX_ROW)-1] = '\0';
 		}
@@ -169,8 +168,8 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 					i+1, MAX_FIELD);
 			continue;
 		}
-		option[i] = allocate_substring(option[i]);
-		if((substr_state=get_substring(row[i], option[i],
+		option[i] = allocateSubstring(option[i]);
+		if((substr_state=getSubstring(row[i], option[i],
 										&amount, ';')) != 0) {
 			fprintf(stderr,"ERROR: reading substrings failed %d!\n",
 					substr_state);
@@ -178,7 +177,6 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 		}
 
 		for(struct substr *ptr = option[i] ; ptr != NULL ; ptr=ptr->next) {
-			/* Check the different possible config values */
 			state = getOption(config, ptr->member, i);
 			switch(state){
 				case OPTION_SUCCESS:
@@ -204,7 +202,7 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 
 	read_success:
 		for(int i = 0 ; i < rows ; i++) {
-			free_substring(option[i]);
+			freeSubstring(option[i]);
 		}
 		fclose(config_file);
 		return CONFIG_SUCCESS;
@@ -214,8 +212,7 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 }
 
 /**
- * @brief	compares the option title with the valid titles and saves the
- * value with the title in the configcontent struct.
+ * @brief	compares option title with the valid titles, save in configcontent
  *
  * Valid Titles are:
  * @li	zone, start, end, context
@@ -225,6 +222,7 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
  * @param[in]	option	the string to parse
  * @param[in]	row_index	the current line in the config
  * @param[out]	config	the pointer to the config struct
+ *
  * @retval OPTION_SUCCESS	option found and value assigned to struct instance
  * @retval OPTION_NOTFOUND	option not found in valid titles
  * @retval OPTION_NOVALUE	option found but no value assigned
@@ -242,25 +240,24 @@ OPTION_STATE getOption(struct configcontent *config, char *option, int index)
 		"exclude", "notify", "interval"
 	};
 
-	sub_option = allocate_substring(sub_option);
+	sub_option = allocateSubstring(sub_option);
 	if(!sub_option || !option || strnlen(option,MAX_ROW) < 2) {
 		free(sub_option);
 		return OPTION_ERROR;
 	}
 
-	if(get_substring(option, sub_option, &amount, '=') != 0) {
+	if(getSubstring(option, sub_option, &amount, '=') != 0) {
 		free(sub_option);
 		return OPTION_ERROR;
 	}
 
-	/* Convert the string to lowercase */
 	lowerCase(sub_option->member, strnlen(sub_option->member, MAX_ROW));
 
 	if(amount <= 1) {
 		goto option_novalue;
 	}
 	if(amount > 2) {
-		free_substring(sub_option);
+		freeSubstring(sub_option);
 		return OPTION_ERROR;
 	}
 
@@ -292,15 +289,15 @@ OPTION_STATE getOption(struct configcontent *config, char *option, int index)
 	goto option_notfound;
 
 	option_good:
-		free_substring(sub_option);
+		freeSubstring(sub_option);
 		return OPTION_SUCCESS;
 
 	option_notfound:
-		free_substring(sub_option);
+		freeSubstring(sub_option);
 		return OPTION_NOTFOUND;
 
 	option_novalue:
-		free_substring(sub_option);
+		freeSubstring(sub_option);
 		return OPTION_NOVALUE;
 }
 
@@ -445,68 +442,272 @@ int writeConfig(struct config* config, char* path)
 }
 
 /**
- * @brief	check if any temporary exclusion has expired
+ * @brief	capture the options and translate them to the config structure
  *
- * @param[in]	excl	pointer to the exclusion struct instance
- * @param[in]	time	the current time as tm struct instance
- * @param[out]	delete	array with amount of the rows to be deleted
+ * Parse the different options and fill the error structure whenever a option
+ * has a incorrect format.
  *
- * @retval	0	content was NOT changed
- * @retval	1	content was changed
+ * @param[in]	content	configcontent structure pointer from readConfig()
+ * @param[out]	error	error structure pointer
+ * @param[out]	config	config structure pointer for the parse output
+ *
+ * @retval	0	SUCCESS
+ * @rerval -1	FAILURE
  */
-int checkExclusion(struct exclusion* excl, struct tm* time)
+int parseConfig(struct configcontent *content, struct error* error,
+		struct config* config)
 {
-	int compare_result = 0;
-	int list_length = 0;
-	int list_state = 0;
-	int i = excl->amount-1;
-	int change = 0;
+	char msg[MAX_ROW] = {0};
+	int value = 0;
+	int result = 0;
+	int zamount = config->zone_amount;
+	struct context *context = NULL;
+	char temp_name[MAX_OPTION] = {0};
+	char temp_context[MAX_CONTEXT] = {0};
+	struct zonetime temp_time = {0};
 
-	while(i > -1) {
-		if(strncmp(excl->type_name[i], "perm", 4) == 0) {
-			return 0;	
-		}
-		if(strncmp(excl->type[i].sub_type, "range", 5) == 0) {
-			compare_result = compareTime(time, &excl->type[i].holiday_end);
-			switch(compare_result) {
-				case TIME_EQUAL:
-				case TIME_SMALLER:
-					resetExclusion(excl, i);
-					change = 1;
-					break;
-				case TIME_BIGGER:
-					break;
-				default:
-					return 0;
-			};
-		}
-		if(strncmp(excl->type[i].sub_type, "list", 4) == 0) {
-			list_length = excl->type[i].list_len;	
-		}
-		for(int j = 0 ; j < list_length ; j++) {
-			compare_result = compareTime(time, &excl->type[i].single_days[j]);
-			switch(compare_result) {
-				case TIME_EQUAL:
-				case TIME_SMALLER:
-					list_state = 1;
-					break;
-				case TIME_BIGGER:
-					list_state = 0;
-					break;
-				default:
-					return 0; 
-			};
-			if(compare_result == TIME_BIGGER) {
-				break;
-			}
-		}
-		if(list_state == 1) {
-			resetExclusion(excl, i);
-			change = 1;
-		}
-		list_length = 0;
-		i--;
+	struct keyvalue lookuptable[VALID_OPTIONS] = {
+		{"zone", FIND_ZONE},
+		{"start", FIND_START},
+		{"end", FIND_END},
+		{"context", FIND_CONTEXT},
+		{"delay", FIND_DELAY},
+		{"cancel", FIND_CANCEL},
+		{"notify", FIND_NOTIFY},
+		{"interval", FIND_INTERVAL},
+		{"exclude", FIND_EXCLUDE}
+	};
+
+	context = initContext(context);
+	if(!context) {
+		return -1;
 	}
 
-	return change;
+	for(int i = 0 ; i < content->amount ; i++) {
+		for(int j = 0 ; j < content->sub_option_amount[i] ; j++) {
+			value = valueForKey(&lookuptable[0], content->option_name[i][j]);
+			if(zoneValidation(temp_name, &temp_time,
+						temp_context) == 0) {
+				strncpy(config->zone_name[zamount],
+						temp_name,
+						MAX_OPTION);
+				strncpy(config->zone_context[zamount],
+						temp_context,
+						MAX_OPTION);
+				config->ztime[zamount].start_hour = temp_time.start_hour;
+				config->ztime[zamount].start_minute = temp_time.start_minute;
+				config->ztime[zamount].end_hour = temp_time.end_hour;
+				config->ztime[zamount].end_minute = temp_time.end_minute;
+				memset(temp_name, 0, MAX_OPTION);
+				memset(temp_context, 0, MAX_CONTEXT);
+				temp_time.start_hour = 0;
+				temp_time.start_minute = 0;
+				temp_time.end_hour = 0;
+				temp_time.end_minute = 0;
+				config->zone_amount += 1;
+				zamount = config->zone_amount;
+			}
+			switch(value) {
+				case FIND_ZONE:
+					strncpy(temp_name,
+							content->option_value[i][j],
+							MAX_OPTION);
+					continue;
+				case FIND_START:
+					result = parseTime(&temp_time.start_hour,
+									&temp_time.start_minute,
+									content->option_value[i][j]);
+					if(result == 1) {
+						snprintf(msg, MAX_ROW, "Invalid time format:%s",
+								content->option_value[i][j]);
+						addError(error, -4, msg, content->rowindex[i]);
+					}
+					continue;
+				case FIND_END:
+					result = parseTime(&temp_time.end_hour,
+									&temp_time.end_minute,
+									content->option_value[i][j]);
+					if(result == 1) {
+						snprintf(msg, MAX_ROW, "Invalid time format:%s",
+								content->option_value[i][j]);
+						addError(error, -4, msg, content->rowindex[i]);
+					}
+					continue;
+				case FIND_CONTEXT:
+					result = contextValidation(context,
+										content->option_value[i][j]);
+					if(result == 0) {
+						strncpy(temp_context,
+								content->option_value[i][j],MAX_CONTEXT);
+					}
+					if(result == 1) {
+						snprintf(msg, MAX_ROW, "Invalid context:%s",
+								content->option_value[i][j]);
+						addError(error, -5, msg, content->rowindex[i]);
+					}
+					continue;
+				case FIND_DELAY:
+					result = parseDelay(&config->delay,
+										content->option_value[i][j]);
+					if(result == -1) {
+						snprintf(msg, MAX_ROW, "Invalid date in delay:%s",
+								content->option_value[i][j]);
+						addError(error, -6, msg, content->rowindex[i]);
+						continue;
+					}
+					if(result == -2) {
+						snprintf(msg, MAX_ROW, "Invalid delay format:%s",
+								content->option_value[i][j]);
+						addError(error, -6, msg, content->rowindex[i]);
+						continue;
+					}
+					continue;
+				case FIND_CANCEL:
+					result = strncmp(content->option_value[i][j], "on", 3);
+					if(result == 0) {
+						config->cancel = 1;
+					}
+					else {
+						config->cancel = 0;
+					}
+					continue;
+				case FIND_NOTIFY:
+					result = strncmp(content->option_value[i][j], "on", 3);
+					if(result == 0) {
+						config->notify = 1;
+					}
+					else {
+						config->notify = 0;
+					}
+					continue;
+				case FIND_INTERVAL:
+					result = parseTimeSpan(content->option_value[i][j]);
+					if(result == -1) {
+						snprintf(msg, MAX_ROW, "Invalid interval: %s",
+								content->option_value[i][j]);
+						addError(error, -7, msg, content->rowindex[i]);
+						continue;
+					}
+					config->interval = result;
+					continue;
+				case FIND_EXCLUDE:
+					result = parseExclusion(&config->excl,
+										content->option_value[i][j]);
+					if(result == PARSER_FORMAT) {
+						snprintf(msg, MAX_ROW, "Invalid Exclusion format: %s",
+								content->option_value[i][j]);
+						addError(error, -8, msg, content->rowindex[i]);
+						continue;
+					}
+					if(result == PARSER_WRONGSIZE) {
+						snprintf(msg, MAX_ROW, "Exclusion too long: %s",
+								content->option_value[i][j]);
+						addError(error, -8, msg, content->rowindex[i]);
+						continue;
+					}
+					if(result == PARSER_ERROR) {
+						snprintf(msg, MAX_ROW, "Exclusion parse failed: %s",
+								content->option_value[i][j]);
+						addError(error, -8, msg, content->rowindex[i]);
+						continue;
+					}
+					continue;
+			}
+		}
+	}
+
+	free(context);
+	return 0;
+}
+
+/**
+ * @brief	generate the format for either the cancel or the notify option
+ *
+ * transforms a 1 to a 'on' and a 0 to a 'off', if the value has changed to any
+ * other value enter ERROR as value
+ *
+ * @param[in]	value	the boolean either 0 or 1
+ * @param[in]	type	the option type either 'Cancel' or 'Notify'
+ * @param[out]	str	the format string used in the writeConfig function
+ */
+void buildBoolFormat(int value, char *type, char *str)
+{
+	snprintf(str, MAX_ROW, "%s=%s\n",type, value==0?"off":value==1?"on":"ERROR");
+}
+
+/**
+ * @brief add a new member to the struct error
+ *
+ * Used for interfunction communication about a wrong syntax in the config
+ * of the user.
+ *
+ * @param[out]	error	pointer to structure error
+ * @param[in]	error_code	a integer (-1|-2|-3), points out the error type
+ * @param[in]	error_msg	a string of max. length MAX_ROW with error details
+ * @param[in]	index	index of the row where the error is located
+ *
+ */
+void addError(struct error *error, int error_code, char *error_msg, int index)
+{
+	int current = error->amount;
+
+	error->error_code[current] = error_code;
+	strncpy(error->error_msg[current], error_msg, MAX_ROW);
+	error->rowindex[current] = index;
+	error->amount += 1;
+}
+
+/*
+ * @brief	Check if the path points to a directory
+ *
+ * @param[in]	path	The path to location of the directory
+ * @retval	0	The directory exists
+ * @retval	1	path is valid but doesn't point to a directory
+ * @retval	-1	path not valid
+ * @retval	-2	stat malfunctions
+ */
+int dirExist(char *path)
+{
+	struct stat s;
+	int errno;
+	int err = stat(path, &s);
+	if(err == -1) {
+		if(errno == ENOENT) {
+			perror("ENOENT");
+			return -1;
+		}
+		else {
+			perror("stat");
+			return -2;
+		}
+	}
+	else {
+		if(S_ISDIR(s.st_mode)) {
+			return 0;
+		}
+		else {
+			return 1;
+		}
+	}
+}
+
+/**
+ * @brief compare string with valid keys and return the enum(FIND) int value
+ *
+ * @param[in]	table	array of valid keys with values
+ * @param[in]	str	the comparison string
+ * @retval	FIND	one of the enum values of the FIND enumeration
+ * @retval	BAD_KEY	-1 on a invalid key
+ */
+int valueForKey(struct keyvalue* table, char* str)
+{
+	struct keyvalue *temp = NULL;
+
+	for(int i = 0 ; i < VALID_OPTIONS ; i++) {
+		temp = &table[i];
+		if(strncmp(str, temp->key, MAX_OPTION_NAME) == 0) {
+			return temp->value;
+		}
+	}
+	return BAD_KEY;
 }

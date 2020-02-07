@@ -10,14 +10,6 @@
 
 
 long encode(struct tm*);
-void switchPosExclusion(struct exclusion*, int, int);
-#define DRAW_LINE(x) {\
-					printf("*");\
-					for(int i = 0 ; i < x ; i++) {\
-						printf("-");\
-					}\
-					printf("*\n");\
-}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 extern FILE *popen( const char *command, const char *modes);
@@ -28,42 +20,17 @@ extern size_t strnlen(const char *s, size_t maxlen);
 extern int opterr, optind, optopt;
 extern char *optarg;
 extern time_t timegm(struct tm *tm);
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
-/*
- * @brief	Check if the path points to a directory
- *
- * @param[in]	path	The path to location of the directory
- * @retval	0	The directory exists
- * @retval	1	path is valid but doesn't point to a directory
- * @retval	-1	path not valid
- * @retval	-2	stat malfunctions
- */
-int dirExist(char *path)
+void drawLine(int x)
 {
-	struct stat s;
-	int errno;
-	int err = stat(path, &s);
-	if(err == -1) {
-		if(errno == ENOENT) {
-			perror("ENOENT");
-			return -1;
-		}
-		else {
-			perror("stat");
-			return -2;
-		}
+	printf("*");
+	for(int i = 0 ; i < x ; i++) {
+		printf("-");
 	}
-	else {
-		if(S_ISDIR(s.st_mode)) {
-			return 0;
-		}
-		else {
-			return 1;
-		}
-	}
+	printf("*\n");
+	
 }
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 void lowerCase(char *option, int length)
@@ -90,85 +57,9 @@ void stripChar(char *input, char c)
 	input[x] = '\0';
 }
 
-/**
- * @brief Array as a set implementation, compare the new value with the array
- *
- * search an array of integers for equality with the given number
- * on a match or on an invalid value, don't attach it.
- * In any other case attach the number at the end and sort the array.
- *
- * @param[in]	size	number of elements in array
- * @param[in]	element	new value to attach
- * @param[out]	arr	the array of integers
- * @retval	0	SUCCESS
- * @retval	1	Number already in set
- * @retval	-1	Invalid value
- */
-int dayToSet(int *arr, int size, int element) {
-	for(int i = 0 ; i < size ; i++) {
-		if(arr[i] == element) {
-			/* day is in set allready */
-			return 1;
-		}
-	}
-
-	if(element < 1 || element > 7) {
-		/* element contains invalid value */
-		return -1;
-	}
-
-	if(size < WEEKDAYS) {
-		arr[size] = element;
-	}
-
-	bubbleSort(arr, size+1);
-
-	return 0;
-}
-
-void bubbleSort(int* arr, int size) {
-	int unsorted = 1;
-	int temp = 0;
-	while(unsorted) {
-		unsorted = 0;
-		for(int i = 0 ; i < size-1 ; i++) {
-			if((arr[i] > arr[i+1] && arr[i+1] != 0) || (arr[i] == 0 && arr[i+1] != 0)) {
-				temp = arr[i];
-				arr[i] = arr[i+1];
-				arr[i+1] = temp;
-				unsorted = 1;
-			}
-		}
-	}
-}
-
-void initExclusionStruct(struct exclusion *excl)
-{
-	for(int i = 0 ; i < MAX_EXCLUSION ; i++) {
-		excl->type[i].holiday_start.tm_year = 0;
-		excl->type[i].holiday_start.tm_mon = 0;
-		excl->type[i].holiday_start.tm_mday = 0;
-		excl->type[i].holiday_end.tm_year = 0;
-		excl->type[i].holiday_end.tm_mon = 0;
-		excl->type[i].holiday_end.tm_mday = 0;
-		for(int j = 0 ; j < MAX_EXCLUSION ; j++) {
-			excl->type[i].single_days[j].tm_year = 0;
-			excl->type[i].single_days[j].tm_mon = 0;
-			excl->type[i].single_days[j].tm_mday = 0;
-		}
-		for(int k = 0 ; k < WEEKDAYS ; k++) {
-			excl->type[i].weekdays[k] = 0;
-		}
-		memset(excl->type[i].sub_type, 0, TYPE_LEN);
-		excl->type[i].list_len = 0;
-		strncpy(excl->type_name[i], "", TYPE_LEN);
-		excl->amount = 0;
-	}
-}
-
 void showZones(struct config *conf)
 {
-	DRAW_LINE(79);
+	drawLine(79);
 	for(int i = 0 ; i < conf->zone_amount ; i++) {
 		printf("| ");
 		printf("Zone:%25s Start:%02d:%02d End:%02d:%02d Context:%16s |\n",
@@ -176,182 +67,7 @@ void showZones(struct config *conf)
 				conf->ztime[i].start_minute, conf->ztime[i].end_hour,
 				conf->ztime[i].end_minute, conf->zone_context[i]);
 	}
-	DRAW_LINE(79);
-}
-
-void debugShowContent(struct configcontent *cont)
-{
-	printf("DEBUG: Content\n");
-	for(int i = 0 ; i < cont->amount ; i++) {
-		for(int j = 0 ; j < cont->sub_option_amount[i] ; j++) {
-			printf("%d.%d: %s -> %s [@%d]\n",i , j, cont->option_name[i][j],
-					cont->option_value[i][j], cont->rowindex[i]);
-		}
-	}
-}
-
-void debugShowError(struct error* err)
-{
-	printf("DEBUG: Error\n");
-	for(int i = 0 ; i < err->amount ; i++) {
-		printf("ERROR: index:%d, code:%d, msg:%s\n",
-				err->rowindex[i], err->error_code[i],
-				err->error_msg[i]);
-	}
-}
-
-void showExclusions(struct exclusion *excl)
-{
-	DRAW_LINE(79);
-	int filler = 0;
-	for(int i = 0 ; i < excl->amount ; i++) {
-		filler = 5;
-		printf("| ");
-		printf("Type:%8s ", excl->type_name[i]);
-		if(strncmp(excl->type_name[i], "temp", 5) == 0) {
-			if(strncmp(excl->type[i].sub_type, "list", 5) == 0 ||
-				strncmp(excl->type[i].sub_type, "solo", 5) == 0) {
-				printf("(");
-				for(int j = 0 ; j < excl->type[i].list_len ; j++) {
-					if(j != 0) {
-						printf(",");
-					}
-					printf("%4d-%02d-%02d",
-							excl->type[i].single_days[j].tm_year+1900,
-							excl->type[i].single_days[j].tm_mon+1,
-							excl->type[i].single_days[j].tm_mday);
-					if((j+1) % 5 == 0 && j+1 < excl->type[i].list_len) {
-						printf("%9s|\n|%15s", " ", " ");
-					}
-					filler -= 1;
-					if(j == 5) {
-						filler = 4;
-					}
-				}
-				printf(")");
-				for(int i = 0 ; i < filler ; i++) {
-					printf("%11s", " ");
-				}
-				printf("%8s|\n", " ");
-			}
-			else if(strncmp(excl->type[i].sub_type, "range", 6) == 0) {
-				printf("from %4d-%02d-%02d until %4d-%02d-%02d%32s|\n",
-						excl->type[i].holiday_start.tm_year+1900,
-						excl->type[i].holiday_start.tm_mon+1,
-						excl->type[i].holiday_start.tm_mday,
-						excl->type[i].holiday_end.tm_year+1900,
-						excl->type[i].holiday_end.tm_mon+1,
-						excl->type[i].holiday_end.tm_mday,
-						" ");
-			}
-		}
-		else if(strncmp(excl->type_name[i], "perm", 5) == 0) {
-			if(strncmp(excl->type[i].sub_type, "list", 5) == 0 ||
-				strncmp(excl->type[i].sub_type, "solo", 5) == 0) {
-				printf("(");
-				for(int j = 0 ; j < excl->type[i].list_len ; j++) {
-					if(j != 0) {
-						printf(",");
-					}
-					printf("%5s",
-							excl->type[i].weekdays[j]==2?"Mon":
-							excl->type[i].weekdays[j]==3?"Tue":
-							excl->type[i].weekdays[j]==4?"Wed":
-							excl->type[i].weekdays[j]==5?"Thu":
-							excl->type[i].weekdays[j]==6?"Fri":
-							excl->type[i].weekdays[j]==7?"Sat":"Sun"
-							);
-					filler -= 1;
-				}
-				printf(")");
-				for(int i = 0 ; i < filler+2 ; i++) {
-					printf("%6s", " ");
-				}
-				printf("%22s\n", "|");
-			}
-		}
-	}
-	DRAW_LINE(79);
-}
-
-void buildExclFormat(struct format_type* excl, char* type, char* str)
-{
-	if(strncmp(type, "perm", 4) == 0) {
-		buildPermExclFormat(excl, str);	
-	}
-	if(strncmp(type, "temp", 4) == 0) {
-		buildTempExclFormat(excl, str);
-	}
-}
-
-void buildTempExclFormat(struct format_type* excl, char* str)
-{
-	char buffer[MAX_FIELD] = {0};
-	char date[DATE+3] = {0};
-
-	if(strncmp(excl->sub_type, "list", 4) == 0) {
-		for(int i = 0 ; i < excl->list_len ; i++) {
-			if(i == 0) {
-				snprintf(date, DATE+2, "%4d-%02d-%02d",
-						excl->single_days[i].tm_year+1900,
-						excl->single_days[i].tm_mon+1,
-						excl->single_days[i].tm_mday);
-			}
-			else {
-				snprintf(date, DATE+3, ",%4d-%02d-%02d",
-						excl->single_days[i].tm_year+1900,
-						excl->single_days[i].tm_mon+1,
-						excl->single_days[i].tm_mday);
-			}
-			strncat(buffer, date, DATE+2);
-		}
-		snprintf(str, MAX_ROW, "Exclude=temporary(%s)\n",buffer);
-	}
-	if(strncmp(excl->sub_type, "range", 5) == 0) {
-		snprintf(str, MAX_ROW, "Exclude=temporary(%4d-%02d-%02d#%4d-%02d-%02d)\n",
-				excl->holiday_start.tm_year+1900,
-				excl->holiday_start.tm_mon+1,
-				excl->holiday_start.tm_mday,
-				excl->holiday_end.tm_year+1900,
-				excl->holiday_end.tm_mon+1,
-				excl->holiday_end.tm_mday);
-	}
-}
-
-void buildPermExclFormat(struct format_type* excl, char* str)
-{
-	char buffer[MAX_FIELD] = {0};
-	char day[DAY+2] = {0};
-	int wd = 0;
-
-	for(int i = 0 ; i < excl->list_len ; i++) {
-		wd = excl->weekdays[i];
-		if(i == 0) {
-			snprintf(day, DAY+1, "%s",wd==1?"mo":wd==2?"tu":wd==3?"we":wd==4?"th":
-					wd==5?"fr":wd==6?"sa":"su");
-		}
-		else {
-			snprintf(day, DAY+2, ",%s",wd==1?"mo":wd==2?"tu":wd==3?"we":wd==4?"th":
-					wd==5?"fr":wd==6?"sa":"su");
-		}
-		strncat(buffer, day, DAY+1);
-	}
-	snprintf(str, MAX_ROW, "Exclude=permanent(%s)\n", buffer);
-}
-
-/**
- * @brief	generate the format for either the cancel or the notify option
- *
- * transforms a 1 to a 'on' and a 0 to a 'off', if the value has changed to any
- * other value enter ERROR as value
- *
- * @param[in]	value	the boolean either 0 or 1
- * @param[in]	type	the option type either 'Cancel' or 'Notify'
- * @param[out]	str	the format string used in the writeConfig function
- */
-void buildBoolFormat(int value, char *type, char *str)
-{
-	snprintf(str, MAX_ROW, "%s=%s\n",type, value==0?"off":value==1?"on":"ERROR");
+	drawLine(79);
 }
 
 struct context* initContext(struct context* ptr)
@@ -494,6 +210,19 @@ int currentContext(char* context)
 	return -1;
 }
 
+/* Argument Parser */
+
+/**
+ * @brief	use the gnu function getopt to read arguments into the flag struct
+ *
+ * @param[in]	argc	number of arguments
+ * @param[in]	argv	2D array of argument strings
+ * @param[in]	opt_string	arg parse options
+ * @param[out]	flag	pointer to the flag structure containg the parsed options
+ *
+ * @retval	0	SUCCESS
+ * @retval	-1	FAILURE
+ */
 int getArgs(struct flags *flag, int argc, char **argv, char *opt_string)
 {
 	int arg_int = 0;
@@ -634,37 +363,21 @@ void showHelp()
 }
 
 /*
- * onlyDigits:
- * checks if the input string contains a letter or if it is a pure number
- * @parameter(in): the string input, the length of the string
- * return:			1 on only digits
- * 					0 on contains letters
- */
-int onlyDigits(char *input, size_t len)
-{
-	for(size_t i = 0 ; i < len ; i++) {
-		if(!isdigit(input[i])) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
-
-/*
- * str_to_int:
- * A wrapper around strtol, that tries to implement a robust
- * error handling for the specific use case.
- * @param (out) output is the number after the operation
- * @param (in) input is the string that is send by the function
- * @return the error or success code
+ * @brief	wrapper around strtol, with robust error handling
+ *
+ * @param[in] input		input string 
+ * @param[out] output	integer of the parsed number 
+ *
+ * @retval	STR_TO_INT_INCONVERTIBLE	string empty	
+ * @retval	STR_TO_INT_OVERFLOW			exceed integer data type boundary
+ * @retval	STR_TO_INT_UNDERFLOW		exceed integer data type negative boundary
+ * @retval	STR_TO_INT_SUCCESS			parse SUCCESSful
  */
 str_to_int_err strToInt(int *output, char* input)
 {
 	char *end = NULL;
 	long number = 0;
 	if(input[0] == '\0') {
-		printf("Error @ str_to_int: first character is a string terminator\n");
 		return STR_TO_INT_INCONVERTIBLE;
 	}
 
@@ -672,12 +385,10 @@ str_to_int_err strToInt(int *output, char* input)
 	errno = 0;
 
 	if(number > INT_MAX || (errno == ERANGE && number == LONG_MAX)) {
-		printf("Error @ str_to_int: Input overflows int type size\n");
 		return STR_TO_INT_OVERFLOW;
 	}
 
 	if(number < INT_MIN || (errno == ERANGE && number == LONG_MIN)) {
-		printf("Error @ str_to_int: Input underflows int type size\n");
 		return STR_TO_INT_UNDERFLOW;
 	}
 
@@ -688,49 +399,6 @@ str_to_int_err strToInt(int *output, char* input)
 	*output = number;
 
 	return STR_TO_INT_SUCCESS;
-}
-
-/**
- * @brief compare string with valid keys and return the enum(FIND) int value
- *
- * @param[in]	table	array of valid keys with values
- * @param[in]	str	the comparison string
- * @retval	FIND	one of the enum values of the FIND enumeration
- * @retval	BAD_KEY	-1 on a invalid key
- */
-int valueForKey(struct keyvalue* table, char* str)
-{
-	struct keyvalue *temp = NULL;
-
-	for(int i = 0 ; i < VALID_OPTIONS ; i++) {
-		temp = &table[i];
-		if(strncmp(str, temp->key, MAX_OPTION_NAME) == 0) {
-			return temp->value;
-		}
-	}
-	return BAD_KEY;
-}
-
-/**
- * @brief add a new member to the struct error
- *
- * Used for interfunction communication about a wrong syntax in the config
- * of the user.
- *
- * @param[out]	error	pointer to structure error
- * @param[in]	error_code	a integer (-1|-2|-3), points out the error type
- * @param[in]	error_msg	a string of max. length MAX_ROW with error details
- * @param[in]	index	index of the row where the error is located
- *
- */
-void addError(struct error *error, int error_code, char *error_msg, int index)
-{
-	int current = error->amount;
-
-	error->error_code[current] = error_code;
-	strncpy(error->error_msg[current], error_msg, MAX_ROW);
-	error->rowindex[current] = index;
-	error->amount += 1;
 }
 
 /**
@@ -779,99 +447,6 @@ long encode(struct tm* time)
 	return time->tm_year*10000000000 + time->tm_mon*100000000 +
 		time->tm_mday*1000000 + time->tm_hour*10000 +
 		time->tm_min*100;
-}
-
-void resetExclusion(struct exclusion* excl, int index)
-{
-	int switch_index = 0;
-	if(index >= excl->amount) {
-		return;
-	}
-	if(strncmp(excl->type_name[index], "perm", TYPE_LEN) == 0) {
-		return;
-	}
-	if(index != excl->amount-1) {
-		switch_index = excl->amount-1;
-		switchPosExclusion(excl, index, switch_index);
-		excl->amount -= 1;
-		return;
-	}
-
-	if(strncmp(excl->type[index].sub_type, "list", TYPE_LEN) == 0) {
-		for(int i = 0 ; i < excl->type[index].list_len ; i++) {
-			resetTm(&excl->type[index].single_days[i]);
-		}
-		excl->type[index].list_len = 0;
-	}
-	if(strncmp(excl->type[index].sub_type, "range", TYPE_LEN) == 0) {
-		resetTm(&excl->type[index].holiday_start);
-		resetTm(&excl->type[index].holiday_start);
-	}
-	memset(excl->type[index].sub_type, 0, TYPE_LEN);
-	memset(excl->type_name[index], 0, TYPE_LEN);
-	excl->amount -= 1;
-}
-
-void switchPosExclusion(struct exclusion* excl, int new, int old) {
-	if(strncmp(excl->type_name[old], "perm", TYPE_LEN) == 0) {
-		for(int i = 0 ; WEEKDAYS ; i++) {
-			excl->type[new].weekdays[i] = excl->type[old].weekdays[i];
-		}
-		strncpy(excl->type[new].sub_type, excl->type[old].sub_type, TYPE_LEN);
-		memset(excl->type[old].sub_type, 0, TYPE_LEN);
-		resetTm(&excl->type[new].holiday_start);
-		resetTm(&excl->type[new].holiday_end);
-		resetTm(&excl->type[old].holiday_start);
-		resetTm(&excl->type[old].holiday_end);
-		for(int i = 0 ; i < MAX_EXCLUSION ; i++) {
-			resetTm(&excl->type[new].single_days[i]);
-			resetTm(&excl->type[old].single_days[i]);
-		}
-		excl->type[new].list_len = excl->type[old].list_len;
-		excl->type[old].list_len = 0;
-	}
-	else if(strncmp(excl->type_name[old], "temp", TYPE_LEN) == 0) {
-		if(strncmp(excl->type[old].sub_type, "range", TYPE_LEN) == 0) {
-			copyTm(&excl->type[new].holiday_start,
-					&excl->type[old].holiday_start);
-			copyTm(&excl->type[new].holiday_end,
-					&excl->type[old].holiday_end);
-			resetTm(&excl->type[old].holiday_start);
-			resetTm(&excl->type[old].holiday_end);
-			for(int i = 0 ; i < MAX_EXCLUSION ; i++) {
-				resetTm(&excl->type[new].single_days[i]);
-				resetTm(&excl->type[old].single_days[i]);
-			}
-			for(int i = 0 ; i < WEEKDAYS ; i++) {
-				excl->type[new].weekdays[i] = excl->type[old].weekdays[i] = 0;
-			}
-			excl->type[new].list_len = excl->type[old].list_len = 0;
-			strncpy(excl->type[new].sub_type,
-					excl->type[old].sub_type, TYPE_LEN);
-			memset(excl->type[old].sub_type, 0, TYPE_LEN);
-		}
-		else if(strncmp(excl->type[old].sub_type, "list", TYPE_LEN) == 0) {
-			resetTm(&excl->type[new].holiday_start);
-			resetTm(&excl->type[new].holiday_end);
-			resetTm(&excl->type[old].holiday_start);
-			resetTm(&excl->type[old].holiday_end);
-			for(int i = 0 ; i < MAX_EXCLUSION ; i++) {
-				copyTm(&excl->type[new].single_days[i],
-						&excl->type[old].single_days[i]);
-				resetTm(&excl->type[old].single_days[i]);
-			}
-			for(int i = 0 ; i < WEEKDAYS ; i++) {
-				excl->type[new].weekdays[i] = excl->type[old].weekdays[i] = 0;
-			}
-			excl->type[new].list_len = excl->type[old].list_len;
-			excl->type[old].list_len = 0;
-			strncpy(excl->type[new].sub_type,
-					excl->type[old].sub_type, TYPE_LEN);
-			memset(excl->type[old].sub_type, 0, TYPE_LEN);
-		}
-	}
-	strncpy(excl->type_name[new], excl->type_name[old], TYPE_LEN);
-	memset(excl->type_name[old], 0, TYPE_LEN);
 }
 
 void resetTm(struct tm* target)

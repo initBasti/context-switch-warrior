@@ -117,3 +117,168 @@ void buildDelayFormat(struct tm* time, char* format)
 			time->tm_year+1900, time->tm_mon+1, time->tm_mday,
 			time->tm_hour, time->tm_min);
 }
+
+/**
+ * @brief	Check a delay format: for correct format and values
+ *
+ * Correct format is YYYY-MM-DDTHH:mmZ
+ * (Y=Year, M=Month, D=Day, H=Hour, m=Minute)
+ *
+ * @param[in]	str	the string to be parsed
+ * @param[out]	delay	tm struct pointer to save the correct values
+ *
+ * @retval	0	SUCCESS
+ * @retval	-1	Invalid time (13month, 35th day)
+ * @retval	-2	Invalid format (10-12-2019T9:00Z)
+ */
+int parseDelay(struct tm *delay, char *str)
+{
+	int year = 0;
+	int mon = 0;
+	int day = 0;
+	int hour = 0;
+	int min = 0;
+
+	if(strnlen(str, MAX_ROW) > DELAY_FORMAT_LEN) {
+		return -2;
+	}
+
+	sscanf(str, "%4d-%2d-%2dT%2d:%2dZ",
+			&year, &mon, &day, &hour, &min);
+
+	if(year == 0) {
+		return -2;
+	}
+	if(year / 1000 < 1) {
+		return -2;
+	}
+	if(mon > 12 || day > 31 || hour > 24 || min > 60) {
+		return -1;
+	}
+	if(mon < 0 || day < 0 || hour < 0 || min < 0) {
+		return -1;
+	}
+
+	delay->tm_year = year-1900;
+	delay->tm_mon = mon-1;
+	delay->tm_mday = day;
+	delay->tm_hour = hour;
+	delay->tm_min = min;
+
+	return 0;
+}
+
+/**
+ * @brief	Check the string for a timespan format, return a minute integer.
+ *
+ * 	- an integer and a legal type (example: 1min, 2hour, 1day)
+ * 	- a floting point number and a legal type (example: 2.5min 1,2h, 0.03d)
+ * 	- just an integer is parsed as minutes
+ * 	- legal types:
+ * 		- min / m / minute
+ * 		- hour / h
+ * 		- day / d
+ * multiply the number with the correct multiplier to return time in minutes.
+ * use: <multiplierForType>"("char* type")"
+ *
+ * @param[in]	str	the time span string, number and type without space
+ *
+ * @retval	positive integer	the time in minutes on SUCCESS
+ * @retval	-1	FAILURE
+ */
+int parseTimeSpan(char *str)
+{
+	char type[10] = {0};
+	char *temp = NULL;
+	int number = 0;
+	float float_number = 0;
+	size_t len = 0;
+
+	if(str == NULL) {
+		return -1;
+	}
+	len = strnlen(str, DELAY_FORMAT_LEN);
+
+	if(strchr(str, '.') != NULL) {
+		sscanf(str, "%f%s", &float_number, type);
+	}
+	else if((temp=strchr(str, ',')) != NULL) {
+		*temp = '.';
+		sscanf(str, "%f%s", &float_number, type);
+	}
+	else if(onlyDigits(str, len)){
+		sscanf(str, "%d", &number);
+		if(number>0) {
+			return number;
+		}
+	}
+	else {
+		sscanf(str, "%d%s", &number, type);
+	}
+
+	if(type[0] == '\0' || (number == 0 && float_number == 0)) {
+		return -1;
+	}
+	if(float_number > 0) {
+		return (int)(float_number*multiplierForType(type));
+	}
+	else if(number > 0) {
+		return number * multiplierForType(type);
+	}
+	return -1;
+}
+
+/**
+ * @brief	Find the multiplier to calculate time into minutes from type
+ *
+ * Recognized types are:
+ * 	- min/minute/m(1)
+ * 	- h/hour(60)
+ * 	- d/day(1440)
+ *
+ * used in: <parseDelay>"("char *str")"
+ * @param[in]	type	string of the type
+ * @retval	multiplier integer	SUCCESS
+ * @retval	-1	FAILURE
+ */
+int multiplierForType(char* type)
+{
+	size_t len = strnlen(type, DELAY_FORMAT_LEN);
+	if(len < 1) {
+		return -1;
+	}
+
+	lowerCase(type, len);
+
+	if(strncmp(type, "minute", len) == 0) {
+		return 1;
+	}
+	else if(strncmp(type, "hour", len) == 0) {
+		return 60;
+	}
+	else if(strncmp(type, "day", len) == 0) {
+		return 1440;
+	}
+	else {
+		return -1;
+	}
+}
+
+/*
+ * onlyDigits:
+ * checks if the input string contains a letter or if it is a pure number
+ * @parameter(in): the string input, the length of the string
+ * return:			1 on only digits
+ * 					0 on contains letters
+ */
+int onlyDigits(char *input, size_t len)
+{
+	for(size_t i = 0 ; i < len ; i++) {
+		if(!isdigit(input[i])) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+

@@ -39,19 +39,19 @@ test: $(RESULTS)
 	#@echo `grep -s FAIL $(RES_DIR)/*.txt`
 	#@echo "\\nDONE"
 
-$(BIN_DIR)/test_%:$(OBJ_DIR)/test_%.o $(OBJ_DIR)/%.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/substring.o $(OBJ_DIR)/parser.o $(OBJ_DIR)/switch.o $(OBJ_DIR)/delay.o $(OBJ_DIR)/cronjob.o $(UNITY_OBJ)
+$(BIN_DIR)/test_%:$(OBJ_DIR)/test_%.o $(OBJ_DIR)/%.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/substring.o $(OBJ_DIR)/exclude.o $(OBJ_DIR)/switch.o $(OBJ_DIR)/delay.o $(OBJ_DIR)/cronjob.o $(UNITY_OBJ)
 	$(LINK) -o $@ $^ $(CFLAGS)
 
-$(OBJ_DIR)/test_%.o: $(TEST_DIR)/test_%.c $(OBJ_DIR)/%.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/substring.o $(OBJ_DIR)/parser.o $(OBJ_DIR)/switch.o $(OBJ_DIR)/delay.o $(OBJ_DIR)/cronjob.o $(UNITY_OBJ)
+$(OBJ_DIR)/test_%.o: $(TEST_DIR)/test_%.c $(OBJ_DIR)/%.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/substring.o $(OBJ_DIR)/exclude.o $(OBJ_DIR)/switch.o $(OBJ_DIR)/delay.o $(OBJ_DIR)/cronjob.o $(UNITY_OBJ)
 	$(COMPILE) -o $@ $< $(CFLAGS)
 
 $(OBJ_DIR)/main.o: $(SRC_DIR)/main.c
 	$(COMPILE) -o $@ $< $(CFLAGS)
 
-$(OBJ_DIR)/config.o: $(SRC_DIR)/config.c $(SRC_DIR)/parser.c
+$(OBJ_DIR)/config.o: $(SRC_DIR)/config.c $(SRC_DIR)/exclude.c
 	$(COMPILE) -o $@ $< $(CFLAGS)
 
-$(OBJ_DIR)/parser.o: $(SRC_DIR)/parser.c $(SRC_DIR)/helper.c $(SRC_DIR)/substring.c
+$(OBJ_DIR)/exclude.o: $(SRC_DIR)/exclude.c $(SRC_DIR)/helper.c $(SRC_DIR)/substring.c
 	$(COMPILE) -o $@ $< $(CFLAGS)
 
 $(OBJ_DIR)/substring.o: $(SRC_DIR)/substring.c $(SRC_DIR)/helper.c
