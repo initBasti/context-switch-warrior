@@ -3,6 +3,11 @@
  * @author Sebastian Fricke
  * @date	2020-01-22
  * @brief	delete/write & check cronjobs for the csw program
+ *
+ * Search for active cronjobs with the csw command.
+ * Delete any entry with csw in the name, on a change or on deletion by the user.
+ * Create a new entry on a change or if no entry with csw is found.
+ * Check the crontab for environment variables, to find the program and user.
  */
 
 #include "include/cronjob.h"
@@ -105,10 +110,10 @@ CRON_STATE handleCrontab(char *term, int new_interval)
  */
 int deleteCrontab(char* term, struct loc_env *environment)
 {
-	char delete_command[MAX_CRON] = {0};
+	char delete_command[MAX_CRON+44] = {0};
 	FILE *process = NULL;
 
-	snprintf(delete_command, MAX_CRON,
+	snprintf(delete_command, MAX_CRON+44,
 			"crontab -u %s -l | grep -v \"%s\" | crontab -u %s -",
 			environment->user, term, environment->user);
 
