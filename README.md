@@ -1,27 +1,41 @@
-Context-Switch-Warrior
-===
+# Context-Switch-Warrior
 Add on for **taskwarrior** to *switch* the task **context** depending on the *daytime* and the *defined schedule*.
 
-Written in C, with the following requirments:
----
-taskwarrior
-cat
-tr
-unistd.h
-getopt.h
+### Features:
+* create and modify a cronjob for the program
+* define zones with assigned taskwarrior contexts
+* delay zone switches and cancel
+* notifications on errors
+* toggle if tasks are automatically canceled
+* exclude time zones from the schedule(holiday, weekend)
 
-How to Build
-===
-
----
-Found Bugs?
-===
+### Todo:
+* notification for upcoming events
+* zone and exclusion definition from the CLI
+* multiple schedules
 
 ---
-Contribute?
-===
+
+#### Written in C, with the following requirments:
+* taskwarrior
+* getopt.h
+* notify-send
+* crontab
 
 ---
-=======
-# context-switch-warrior
-An extension for taskwarrior to switch between task contexts with a specified schedule
+
+### How to Build
+* make
+* sudo make install
+
+### Testing
+make test
+    
+*generates results in the build/results folder*
+
+---
+
+#### Found Bugs or want to contribute?
+please contact me @ sebastian.fricke.linux@gmx.de
+
+---
