@@ -16,8 +16,4 @@ extern size_t strnlen(const char*, size_t);
 void buildDelayFormat(struct tm*, char*);
 DELAY_CHECK checkDelay(int, struct tm*, struct tm*);
 int parseDelay(struct tm*,char*);
-int parseTimeSpan(char*);
-int multiplierForType(char*);
-int onlyDigits(char*, size_t);
-
 #endif /* DELAY_H */

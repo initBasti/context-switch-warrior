@@ -8,12 +8,13 @@
 #include "include/delay.h"
 
 /**
- * @brief	Make a check on the input if it is formatted in delay format.
+ * @brief	check the input for a delay format.
  *
- * Doesn't check for valid date or date in the past, those tests
+ * Don't check for valid date or date in the past, those tests
  * are performed in the parser.
  *
  * @param[in]	row	string to be checked
+ *
  * @retval	0	valid format
  * @retval	-1	bad size
  * @retval	-2	bad format
@@ -42,20 +43,22 @@ int delayFormatValidation(char *row)
 			else {
 				return 0;
 			}
-		}	
+		}
 	}
 	return -2;
 }
 
 /**
- * @brief	check if a delay is active or not, include the command line flag
+ * @brief	check if the end of the delay is stated after the current time
+ *
+ * include the value from the command line flag -d into the calculation
  *
  * @param[in]	flag	timespan of delay of flag (CLI)
  * @param[in]	delay	delay time instance
  * @param[in]	time	current time instance
  *
  * @retval	VALID	delay is active with no further increment
- * @retval	VALID_PLUS_NEW	the delay is still active and increased by the user	
+ * @retval	VALID_PLUS_NEW	the delay is still active and increased by the user
  * @retval	INVALID_PLUS_NEW	delay expired but a new one is created
  * @retval	INVALID	delay expired and no new delay to be created
  * @retval	ERROR	the check failed with an error
@@ -97,15 +100,15 @@ DELAY_CHECK checkDelay(int flag, struct tm* delay, struct tm* time)
 		default:
 			return ERROR;
 	}
-	return 0;	
+	return 0;
 }
 
 /**
- * @brief	increase the given time by the delay value and build the format	
+ * @brief	increase the given time by the delay value and build the format
  *
  * @param[in]	time	tm struct instance (either current time or delay time)
  * @param[in]	delay	minutes integer of the time to be added
- * @param[out]	format	string of length:DELAY_FORMAT_LEN 
+ * @param[out]	format	string of length:DELAY_FORMAT_LEN
  */
 void buildDelayFormat(struct tm* time, char* format)
 {
@@ -167,118 +170,3 @@ int parseDelay(struct tm *delay, char *str)
 
 	return 0;
 }
-
-/**
- * @brief	Check the string for a timespan format, return a minute integer.
- *
- * 	- an integer and a legal type (example: 1min, 2hour, 1day)
- * 	- a floting point number and a legal type (example: 2.5min 1,2h, 0.03d)
- * 	- just an integer is parsed as minutes
- * 	- legal types:
- * 		- min / m / minute
- * 		- hour / h
- * 		- day / d
- * multiply the number with the correct multiplier to return time in minutes.
- * use: <multiplierForType>"("char* type")"
- *
- * @param[in]	str	the time span string, number and type without space
- *
- * @retval	positive integer	the time in minutes on SUCCESS
- * @retval	-1	FAILURE
- */
-int parseTimeSpan(char *str)
-{
-	char type[10] = {0};
-	char *temp = NULL;
-	int number = 0;
-	float float_number = 0;
-	size_t len = 0;
-
-	if(str == NULL) {
-		return -1;
-	}
-	len = strnlen(str, DELAY_FORMAT_LEN);
-
-	if(strchr(str, '.') != NULL) {
-		sscanf(str, "%f%s", &float_number, type);
-	}
-	else if((temp=strchr(str, ',')) != NULL) {
-		*temp = '.';
-		sscanf(str, "%f%s", &float_number, type);
-	}
-	else if(onlyDigits(str, len)){
-		sscanf(str, "%d", &number);
-		if(number>0) {
-			return number;
-		}
-	}
-	else {
-		sscanf(str, "%d%s", &number, type);
-	}
-
-	if(type[0] == '\0' || (number == 0 && float_number == 0)) {
-		return -1;
-	}
-	if(float_number > 0) {
-		return (int)(float_number*multiplierForType(type));
-	}
-	else if(number > 0) {
-		return number * multiplierForType(type);
-	}
-	return -1;
-}
-
-/**
- * @brief	Find the multiplier to calculate time into minutes from type
- *
- * Recognized types are:
- * 	- min/minute/m(1)
- * 	- h/hour(60)
- * 	- d/day(1440)
- *
- * used in: <parseDelay>"("char *str")"
- * @param[in]	type	string of the type
- * @retval	multiplier integer	SUCCESS
- * @retval	-1	FAILURE
- */
-int multiplierForType(char* type)
-{
-	size_t len = strnlen(type, DELAY_FORMAT_LEN);
-	if(len < 1) {
-		return -1;
-	}
-
-	lowerCase(type, len);
-
-	if(strncmp(type, "minute", len) == 0) {
-		return 1;
-	}
-	else if(strncmp(type, "hour", len) == 0) {
-		return 60;
-	}
-	else if(strncmp(type, "day", len) == 0) {
-		return 1440;
-	}
-	else {
-		return -1;
-	}
-}
-
-/*
- * onlyDigits:
- * checks if the input string contains a letter or if it is a pure number
- * @parameter(in): the string input, the length of the string
- * return:			1 on only digits
- * 					0 on contains letters
- */
-int onlyDigits(char *input, size_t len)
-{
-	for(size_t i = 0 ; i < len ; i++) {
-		if(!isdigit(input[i])) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
-
