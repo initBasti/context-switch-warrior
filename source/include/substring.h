@@ -5,9 +5,9 @@
 #include "helper.h"
 #endif
 
-struct substr *allocate_substring();
-void free_substring(struct substr*);
-int get_substring(char*, struct substr*, int*, char);
-int add_substring(struct substr*, char*, char);
+struct substr *allocateSubstring();
+void freeSubstring(struct substr*);
+int getSubstring(char*, struct substr*, int*, char);
+int addSubstring(struct substr*, char*, char);
 int equalListElements(struct substr*);
 #endif
