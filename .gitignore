@@ -1,8 +1,10 @@
 bin/*
 build/*
-config_bak.sh
+.config_bak.sh
 doxywarning.txt
-start_auto.sh
+.start_auto.sh
 TODO.txt
 test/*
 unity/*
+callgraph
+csw
