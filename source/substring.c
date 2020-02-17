@@ -1,3 +1,12 @@
+/**
+ * @file substring.c
+ * @author	Sebastian Fricke
+ * @date	2019-11-21
+ * @license	GNU Public License
+ *
+ * @brief	Linked list implementation for splitting strings into sub-parts
+ */
+
 #include "include/substring.h"
 #include "include/helper.h"
 #ifndef CONFIG_H
@@ -8,9 +17,17 @@
 #include <string.h>
 #endif
 
+#ifdef DOXYGEN_SHOULD_SKIP_THIS
 extern size_t strnlen (__const char *__string, size_t __maxlen);
+#endif /*DOXYGEN_SHOULD_SKIP_THIS*/
 
-struct substr *allocate_substring()
+/**
+ * @brief	create and heap allocate a instance of the substr structure
+ *
+ * @retval	new		success return the instance pointer
+ * @retval	NULL	failure
+ */
+struct substr *allocateSubstring()
 {
 	struct substr *new = calloc(1, sizeof(struct substr));
 	if(!new) {
@@ -21,7 +38,12 @@ struct substr *allocate_substring()
 	return new;
 }
 
-void free_substring(struct substr *head)
+/**
+ * @brief	free the linked list, move through the chain elements
+ *
+ * @param[in]	head	pointer to the substr struct allocated in allocateSubstring
+ */
+void freeSubstring(struct substr *head)
 {
 	while(head) {
 		struct substr *tmp = head;
@@ -30,7 +52,17 @@ void free_substring(struct substr *head)
 	}
 }
 
-int add_substring(struct substr *head, char *input, char sep)
+/**
+ * @brief	add a new element to the substr structure
+ *
+ * @param[in]	head	pointer to the substr structure instance
+ * @param[in]	input	content for the member of field of the instance
+ * @param[in]	sep		separator that was used in getSubstring, remove if any remain
+ *
+ * @retval	0	SUCCESS
+ * @retval	-1	FAILURE, invalid input or ENOMEM
+ */
+int addSubstring(struct substr *head, char *input, char sep)
 {
 	int in_len = strnlen(input, MAX_EXCL_LINE);
 	int mem_len = 0;
@@ -46,11 +78,10 @@ int add_substring(struct substr *head, char *input, char sep)
 	}
 	for(struct substr *ptr = head ; ptr != NULL ; ptr=ptr->next){
 		if(ptr->next == NULL) {
-			ptr->next = allocate_substring();
+			ptr->next = allocateSubstring();
 			if(!ptr->next) {
 				return -1;
 			}
-			/* delete any remaining separator in the string */
 			stripChar(input, sep);
 			mem_len = strnlen(input, MAX_ROW);
 			strncpy(ptr->next->member, input, mem_len);
@@ -62,15 +93,17 @@ int add_substring(struct substr *head, char *input, char sep)
 }
 
 /*
- * get_substring:
- * split the input line into smaller pieces between the given separator
- * fill a linked list and return it together with it's length
- * @parameter(in): input line, separator char
- * @parameter(out): the head to the linked list, the pointer to the length var
- * return:			0 on SUCCESS
- * 				   -1 on FAILURE
+ * @brief	split input into parts separated by sep and save into a substr linked list
+ *
+ * @param[in]	input	string for separation
+ * @param[in]	sep		character used as separator
+ * @param[out]	amount	length of the linked list
+ * @param[out]	head	linked list
+ *
+ * @retval	0	SUCCESS, input separated and linked list created
+ * @retval	-1	FAILURE, incorrect input or ENOMEM
  */
-int get_substring(char* input, struct substr* head, int *amount, char sep)
+int getSubstring(char* input, struct substr* head, int *amount, char sep)
 {
 	char subsets[MAX_EXCL][MAX_EXCL_LINE] = {"0"};
 	char options[MAX_EXCL][MAX_FIELD] = {"0"};
@@ -100,7 +133,7 @@ int get_substring(char* input, struct substr* head, int *amount, char sep)
 	if(!options[0]) {
 		goto error_return;
 	}
-	if(add_substring(head, options[0], sep) != 0) {
+	if(addSubstring(head, options[0], sep) != 0) {
 		goto error_return;
 	}
 	*amount = *amount + 1;
@@ -112,7 +145,7 @@ int get_substring(char* input, struct substr* head, int *amount, char sep)
 		}
 		copy_size = length - sub_length;
 		strncpy(options[i], subsets[i]+1, copy_size);
-		if(add_substring(head, options[i], sep) == 0) {
+		if(addSubstring(head, options[i], sep) == 0) {
 			*amount = *amount + 1;
 		}
 		sub_length = copy_size = 0;
@@ -125,15 +158,13 @@ int get_substring(char* input, struct substr* head, int *amount, char sep)
 		return -1;
 }
 
-/*
- * equalListSize:
- * checks the different elements of a linked list for their length
- * as soon as one of the elements deviates or is greater than the Maximum
- * length of a Date the function returns a non-zero integer.
- * This function is used specifically for the parser.c
- * @parameter(in): the head of the linked list
- * return:		0 on SUCCESS
- * 			not 0 on FAILURE
+/**
+ * @brief	check if every member of a linked list is of equal size
+ *
+ * @param[in]	head	linked list
+ *
+ * @retval	0 on SUCCESS
+ * 			!0 on FAILURE
  */
 int equalListElements(struct substr* head)
 {

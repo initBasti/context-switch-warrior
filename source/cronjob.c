@@ -12,6 +12,12 @@
 
 #include "include/cronjob.h"
 
+/**
+ * @brief	change the last char of a string if it is a newline
+ *
+ * @param[in]	buffer	string to be removed from the linebreak
+ * @param[in]	len		length of the string
+ */
 #define REMOVE_NEWLINE(buffer, len) {\
 	if(buffer[strnlen(buffer, len)-1] == '\n') {\
 		buffer[strnlen(buffer, len)-1] = '\0';\
@@ -104,6 +110,7 @@ CRON_STATE handleCrontab(char *term, int new_interval)
  * @brief	remove each cronjob entry containing the term
  *
  * @param[in]	term	term to be searched for
+ * @param[in]	environment	structure with info about the local user env variables	
  *
  * @retval	0	deletion successful
  * @retval	-1	deletion failed
@@ -131,6 +138,7 @@ int deleteCrontab(char* term, struct loc_env *environment)
  * @brief	read the content of crontab -u $USER -l and save to string array
  *
  * @param[in]	process	FILE pointer to process opened by popen()
+ * @param[in]	size	size of the 2nd dimension of the 2D Array
  * @param[out]	output	array of strings with the crontab output
  *
  * @retval	0	SUCCESS
@@ -168,7 +176,7 @@ void listCrontab(char* user, char* output)
 /**
  * @brief	change the interval amount in the crontab entry to a new value
  *
- * @param[in]	str	crontab entry from checkCrontab()
+ * @param[in]	term	command for the cronjob
  * @param[in]	interval	minute amount to replace the current
  * @param[in]	local_environment	PATH and USER of local environment
  *

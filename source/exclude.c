@@ -1,5 +1,5 @@
 /**
- * @file delay.c
+ * @file exclude.c
  * @brief	Module containing all functions related to exclusions
  *
  * 2020-02-04 (SF)	:	reordered the functions from parser.c(deleted)
@@ -548,7 +548,6 @@ void showExclusions(struct exclusion *excl)
  *
  * @param[in]	excl	pointer to the exclusion struct instance
  * @param[in]	time	the current time as tm struct instance
- * @param[out]	delete	array with amount of the rows to be deleted
  *
  * @retval	0	content was NOT changed
  * @retval	1	content was changed
@@ -669,6 +668,7 @@ void buildExclFormat(struct format_type* excl, char* type, char* str)
 	}
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 void buildTempExclFormat(struct format_type* excl, char* str)
 {
 	char buffer[MAX_FIELD] = {0};
@@ -723,6 +723,7 @@ void buildPermExclFormat(struct format_type* excl, char* str)
 	}
 	snprintf(str, MAX_ROW, "Exclude=permanent(%s)\n", buffer);
 }
+#endif /*DOXYGEN_SHOULD_SKIP_THIS */
 
 /**
  * @brief	switch the position of two exclusions within the array
