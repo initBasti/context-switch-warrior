@@ -1,19 +1,16 @@
 /**
  * @file config.c
- * @brief	Implementation of a config reader for csw project
  * @author	Sebastian Fricke
- * @license GNU Public License
+ *
+ * @brief	find,read,parse,sync & write a config file
  */
 
 #include "include/config.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 extern int mkstemp(char *template);
 extern int unlink(const char *pathname);
-
-#define REWIND_RETURN(x, file)  {\
-	rewind(file);\
-	return x;\
-	}
+#endif
 
 /**
  * @brief find the file within the expected location
@@ -106,8 +103,10 @@ FILE_STATE findConfig(char* name, char* path)
  * ZONE={NAME};START={Start_t};END={End_t};CONTEXT={context option from tw};
  * ';' the option separator , '=' the value separator
  *
- * @param[in]	path	the path to the config file
- * @param[out]	config	the pointer to heap allocated struct
+ * @param[in]	path	path to the config file
+ * @param[out]	config	pointer to heap allocated struct
+ * @param[out]	error   error structure for notification	
+ *
  * @retval	CONFIG_SUCCESS	config read success, no errors
  * @retval	CONFIG_BAD	config has a bad format
  * @retval	CONFIG_NOTFOUND	config file was not found in .task/csw
@@ -220,7 +219,7 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
  * @li	delay, cancel, notify
  *
  * @param[in]	option	the string to parse
- * @param[in]	row_index	the current line in the config
+ * @param[in]	index	the current line in the config
  * @param[out]	config	the pointer to the config struct
  *
  * @retval OPTION_SUCCESS	option found and value assigned to struct instance
@@ -336,7 +335,6 @@ int indexInList(struct configcontent *config, int index)
  * @param[in]	config	config struct pointer to the parsed config values
  * @param[in]	flag	flags struct pointer to the cli options
  * @param[in]	time	tm struct pointer to the current time & date
- * @param[out]	change	pointer to structure of recorded changes
  *
  * @retval	0	synchronize successfully WITHOUT changes
  * @retval	1	synchronize successfully WITH changes
@@ -452,7 +450,7 @@ int writeConfig(struct config* config, char* path)
  * @param[out]	config	config structure pointer for the parse output
  *
  * @retval	0	SUCCESS
- * @rerval -1	FAILURE
+ * @retval -1	FAILURE
  */
 int parseConfig(struct configcontent *content, struct error* error,
 		struct config* config)
@@ -657,7 +655,7 @@ void addError(struct error *error, int error_code, char *error_msg, int index)
 	error->amount += 1;
 }
 
-/*
+/**
  * @brief	Check if the path points to a directory
  *
  * @param[in]	path	The path to location of the directory

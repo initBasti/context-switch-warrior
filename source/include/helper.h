@@ -1,10 +1,10 @@
 #ifndef HELPER_H
 #define HELPER_H
+
 #include "types.h"
 #include <unistd.h>
-#include <sys/types.h>
-#include <limits.h>
 #include <ctype.h>
+#include <sys/types.h>
 
 #ifndef CONFIG_H
 #include <stdio.h>
@@ -30,10 +30,10 @@ int currentContext(char*);
 int zoneValidation(char*, struct zonetime*, char*);
 void showZones(struct config*);
 
-/* argument parser */
-int getArgs(struct flags*, int, char**, char*);
-void showHelp();
-str_to_int_err strToInt(int*, char*);
+/* parse of time input */
+int multiplierForType(char*);
+int onlyDigits(char*, size_t);
+int parseTimeSpan(char*);
 
 /* struct tm modification functions*/
 void increaseTime(int, struct tm*);
