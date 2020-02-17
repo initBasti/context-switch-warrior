@@ -1,0 +1,79 @@
+\hypertarget{args_8c}{}\section{args.\+c File Reference}
+\label{args_8c}\index{args.\+c@{args.\+c}}
+
+
+read different argument from the C\+LI and parse correctly  
+
+
+{\ttfamily \#include \char`\"{}include/args.\+h\char`\"{}}\newline
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{args_8c_af8eea4802a41d3e6201a3d8b8d1cd1ed}{get\+Args} (struct flags $\ast$flag, int argc, char $\ast$$\ast$argv, char $\ast$opt\+\_\+string)
+\begin{DoxyCompactList}\small\item\em use the gnu function getopt to read arguments into the flag struct \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{args_8c_aec315d77f5c38417289a0e311d2a9d31}\label{args_8c_aec315d77f5c38417289a0e311d2a9d31}} 
+void {\bfseries show\+Help} ()
+\item 
+\mbox{\Hypertarget{args_8c_afc92d2231e45d19988c7894aa2a07f0c}\label{args_8c_afc92d2231e45d19988c7894aa2a07f0c}} 
+size\+\_\+t {\bfseries strnlen} (const char $\ast$s, size\+\_\+t maxlen)
+\item 
+\mbox{\Hypertarget{args_8c_aaaf640eb891d8ce706f6988eb4a3f6f6}\label{args_8c_aaaf640eb891d8ce706f6988eb4a3f6f6}} 
+str\+\_\+to\+\_\+int\+\_\+err {\bfseries str\+To\+Int} (int $\ast$output, char $\ast$input)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{args_8c_adb50a0eab9fed92fc3bfc7dfa4f2c410}\label{args_8c_adb50a0eab9fed92fc3bfc7dfa4f2c410}} 
+char $\ast$ {\bfseries optarg}
+\item 
+\mbox{\Hypertarget{args_8c_ae30f05ee1e2e5652f174a35c7875d25e}\label{args_8c_ae30f05ee1e2e5652f174a35c7875d25e}} 
+int {\bfseries opterr}
+\item 
+\mbox{\Hypertarget{args_8c_ad5e1c16213bbee2d5e8cc363309f418c}\label{args_8c_ad5e1c16213bbee2d5e8cc363309f418c}} 
+int {\bfseries optind}
+\item 
+\mbox{\Hypertarget{args_8c_a475b8db98445da73e5f62a1ef6324b95}\label{args_8c_a475b8db98445da73e5f62a1ef6324b95}} 
+int {\bfseries optopt}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+read different argument from the C\+LI and parse correctly 
+
+\begin{DoxyAuthor}{Author}
+Sebastian Fricke 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2020-\/02-\/13 
+\end{DoxyDate}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{args_8c_af8eea4802a41d3e6201a3d8b8d1cd1ed}\label{args_8c_af8eea4802a41d3e6201a3d8b8d1cd1ed}} 
+\index{args.\+c@{args.\+c}!get\+Args@{get\+Args}}
+\index{get\+Args@{get\+Args}!args.\+c@{args.\+c}}
+\subsubsection{\texorpdfstring{get\+Args()}{getArgs()}}
+{\footnotesize\ttfamily int get\+Args (\begin{DoxyParamCaption}\item[{struct flags $\ast$}]{flag,  }\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv,  }\item[{char $\ast$}]{opt\+\_\+string }\end{DoxyParamCaption})}
+
+
+
+use the gnu function getopt to read arguments into the flag struct 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em argc} & number of arguments \\
+\hline
+\mbox{\tt in}  & {\em argv} & 2D array of argument strings \\
+\hline
+\mbox{\tt in}  & {\em opt\+\_\+string} & arg parse options \\
+\hline
+\mbox{\tt out}  & {\em flag} & pointer to the flag structure containg the parsed options\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+\end{DoxyRetVals}

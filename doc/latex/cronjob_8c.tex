@@ -1,0 +1,377 @@
+\hypertarget{cronjob_8c}{}\section{cronjob.\+c File Reference}
+\label{cronjob_8c}\index{cronjob.\+c@{cronjob.\+c}}
+
+
+delete/write \& check cronjobs for the csw program  
+
+
+{\ttfamily \#include \char`\"{}include/cronjob.\+h\char`\"{}}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{cronjob_8c_a743dd35c7847bfd2fc4cda01d07c41cd}{R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE}(buffer,  len)
+\begin{DoxyCompactList}\small\item\em change the last char of a string if it is a newline \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{cronjob_8c_a503ea8c99f8693b6b601abcbac77c253}{build\+Cron\+Command} (char $\ast$term, int interval, struct loc\+\_\+env $\ast$environment, char $\ast$str)
+\begin{DoxyCompactList}\small\item\em Combine command, cron string and environment variables to one string. \end{DoxyCompactList}\item 
+void \hyperlink{cronjob_8c_ace4775f258250597a964418a3895b823}{build\+Cron\+Interval} (int interval, char $\ast$output)
+\begin{DoxyCompactList}\small\item\em create the interval for a cronjob by applying the interval minutes \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a3c3af46909a8833b86c96d3095827c33}{check\+Cron\+Env} (int size, char input\mbox{[}$\,$\mbox{]}\mbox{[}size\mbox{]})
+\begin{DoxyCompactList}\small\item\em wrapper function around check\+Crontab to check if P\+A\+TH and U\+S\+ER are declared \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a7f92f34984b66070d8341123fbd0d22e}{check\+Crontab} (char $\ast$term, int size, char crontab\mbox{[}$\,$\mbox{]}\mbox{[}size\mbox{]}, int $\ast$index)
+\begin{DoxyCompactList}\small\item\em search for a term in the crontab \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a6b427ed7ed07586c41ad6dc328a8f2e2}{check\+Term} (char $\ast$term)
+\begin{DoxyCompactList}\small\item\em check if program used for the program exists within the declared P\+A\+TH \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a02e241b6b8590a94931502627639bbce}{delete\+Crontab} (char $\ast$term, struct loc\+\_\+env $\ast$environment)
+\begin{DoxyCompactList}\small\item\em remove each cronjob entry containing the term \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a2f599a09ef535763c4c6d2ca0d4a915f}{get\+Local\+Env} (struct loc\+\_\+env $\ast$environment)
+\begin{DoxyCompactList}\small\item\em retrieve values from the P\+A\+TH and U\+S\+ER variable and parse them to a string \end{DoxyCompactList}\item 
+C\+R\+O\+N\+\_\+\+S\+T\+A\+TE \hyperlink{cronjob_8c_a721adf65517d49f9e612e68b8fe8217b}{handle\+Crontab} (char $\ast$term, int new\+\_\+interval)
+\begin{DoxyCompactList}\small\item\em check the output of crontab to decide for creation, change or delete \end{DoxyCompactList}\item 
+void \hyperlink{cronjob_8c_ab7f7c047bc876c265a9de54cee2cb3e5}{list\+Crontab} (char $\ast$user, char $\ast$output)
+\begin{DoxyCompactList}\small\item\em combines the username with the crontab -\/u xxx -\/l command \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a0e47eb59d2c080f376f1a6d5f237b479}{parse\+Crontab} (char crontab\mbox{[}$\,$\mbox{]}, int $\ast$interval)
+\begin{DoxyCompactList}\small\item\em split the arguments of the crontab output to get the minutes/hour interval \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a03b3b1c8d5055d75a39a2e8e187a2b3f}{read\+Crontab} (F\+I\+LE $\ast$process, int size, char output\mbox{[}$\,$\mbox{]}\mbox{[}size\mbox{]})
+\begin{DoxyCompactList}\small\item\em read the content of crontab -\/u \$\+U\+S\+ER -\/l and save to string array \end{DoxyCompactList}\item 
+int \hyperlink{cronjob_8c_a99430bcf241251e08d9e60574e737de4}{write\+Crontab} (char $\ast$term, int interval, struct loc\+\_\+env $\ast$local\+\_\+environment)
+\begin{DoxyCompactList}\small\item\em change the interval amount in the crontab entry to a new value \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+delete/write \& check cronjobs for the csw program 
+
+\begin{DoxyAuthor}{Author}
+Sebastian Fricke 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2020-\/01-\/22 Search for active cronjobs with the csw command. Delete any entry with csw in the name, on a change or on deletion by the user. Create a new entry on a change or if no entry with csw is found. Check the crontab for environment variables, to find the program and user. 
+\end{DoxyDate}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\Hypertarget{cronjob_8c_a743dd35c7847bfd2fc4cda01d07c41cd}\label{cronjob_8c_a743dd35c7847bfd2fc4cda01d07c41cd}} 
+\index{cronjob.\+c@{cronjob.\+c}!R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE@{R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE}}
+\index{R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE@{R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE}{REMOVE\_NEWLINE}}
+{\footnotesize\ttfamily \#define R\+E\+M\+O\+V\+E\+\_\+\+N\+E\+W\+L\+I\+NE(\begin{DoxyParamCaption}\item[{}]{buffer,  }\item[{}]{len }\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}
+\{\(\backslash\)
+    if(buffer[strnlen(buffer, len)-1] == \textcolor{charliteral}{'\(\backslash\)n'}) \{\(\backslash\)
+        buffer[strnlen(buffer, len)-1] = \textcolor{charliteral}{'\(\backslash\)0'};\(\backslash\)
+    \}\(\backslash\)
+\};
+\end{DoxyCode}
+
+
+change the last char of a string if it is a newline 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em buffer} & string to be removed from the linebreak \\
+\hline
+\mbox{\tt in}  & {\em len} & length of the string \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{cronjob_8c_a503ea8c99f8693b6b601abcbac77c253}\label{cronjob_8c_a503ea8c99f8693b6b601abcbac77c253}} 
+\index{cronjob.\+c@{cronjob.\+c}!build\+Cron\+Command@{build\+Cron\+Command}}
+\index{build\+Cron\+Command@{build\+Cron\+Command}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{build\+Cron\+Command()}{buildCronCommand()}}
+{\footnotesize\ttfamily int build\+Cron\+Command (\begin{DoxyParamCaption}\item[{char $\ast$}]{term,  }\item[{int}]{interval,  }\item[{struct loc\+\_\+env $\ast$}]{environment,  }\item[{char $\ast$}]{str }\end{DoxyParamCaption})}
+
+
+
+Combine command, cron string and environment variables to one string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em term} & command term used in the cronjob \\
+\hline
+\mbox{\tt in}  & {\em interval} & minutes integer of the interval for cron execution \\
+\hline
+\mbox{\tt in}  & {\em environment} & environment variables structure from \hyperlink{cronjob_8c_a2f599a09ef535763c4c6d2ca0d4a915f}{get\+Local\+Env()} \\
+\hline
+\mbox{\tt out}  & {\em str} & output string on success, 0 on failure\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & successful string build \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+{\em -\/2} & Command not found \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_ace4775f258250597a964418a3895b823}\label{cronjob_8c_ace4775f258250597a964418a3895b823}} 
+\index{cronjob.\+c@{cronjob.\+c}!build\+Cron\+Interval@{build\+Cron\+Interval}}
+\index{build\+Cron\+Interval@{build\+Cron\+Interval}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{build\+Cron\+Interval()}{buildCronInterval()}}
+{\footnotesize\ttfamily void build\+Cron\+Interval (\begin{DoxyParamCaption}\item[{int}]{interval,  }\item[{char $\ast$}]{output }\end{DoxyParamCaption})}
+
+
+
+create the interval for a cronjob by applying the interval minutes 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em interval} & interval minutes integer \\
+\hline
+\mbox{\tt out}  & {\em output} & cron interval string on success, empty on failure \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{cronjob_8c_a3c3af46909a8833b86c96d3095827c33}\label{cronjob_8c_a3c3af46909a8833b86c96d3095827c33}} 
+\index{cronjob.\+c@{cronjob.\+c}!check\+Cron\+Env@{check\+Cron\+Env}}
+\index{check\+Cron\+Env@{check\+Cron\+Env}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{check\+Cron\+Env()}{checkCronEnv()}}
+{\footnotesize\ttfamily int check\+Cron\+Env (\begin{DoxyParamCaption}\item[{int}]{size,  }\item[{char}]{input\mbox{[}$\,$\mbox{]}\mbox{[}size\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+wrapper function around check\+Crontab to check if P\+A\+TH and U\+S\+ER are declared 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em size} & size of the 2nd dimension of the 2D input array \\
+\hline
+\mbox{\tt in}  & {\em input} & 2D array of the read content from the crontab\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS both found \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE only one or none found \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a7f92f34984b66070d8341123fbd0d22e}\label{cronjob_8c_a7f92f34984b66070d8341123fbd0d22e}} 
+\index{cronjob.\+c@{cronjob.\+c}!check\+Crontab@{check\+Crontab}}
+\index{check\+Crontab@{check\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{check\+Crontab()}{checkCrontab()}}
+{\footnotesize\ttfamily int check\+Crontab (\begin{DoxyParamCaption}\item[{char $\ast$}]{term,  }\item[{int}]{size,  }\item[{char}]{crontab\mbox{[}$\,$\mbox{]}\mbox{[}size\mbox{]},  }\item[{int $\ast$}]{index }\end{DoxyParamCaption})}
+
+
+
+search for a term in the crontab 
+
+Uses the P\+O\+S\+IX regular expression for matching the term with"
+\begin{DoxyItemize}
+\item a following space
+\item a following =
+\item at the end of the line
+\end{DoxyItemize}
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em term} & term to be located \\
+\hline
+\mbox{\tt in}  & {\em size} & size of the 2nd dimension of the crontab array \\
+\hline
+\mbox{\tt in}  & {\em crontab} & pointer to 2-\/dimensional array of read lines in crontab \\
+\hline
+\mbox{\tt out}  & {\em index} & index of the row with the first match\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS term found in crontab \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a6b427ed7ed07586c41ad6dc328a8f2e2}\label{cronjob_8c_a6b427ed7ed07586c41ad6dc328a8f2e2}} 
+\index{cronjob.\+c@{cronjob.\+c}!check\+Term@{check\+Term}}
+\index{check\+Term@{check\+Term}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{check\+Term()}{checkTerm()}}
+{\footnotesize\ttfamily int check\+Term (\begin{DoxyParamCaption}\item[{char $\ast$}]{term }\end{DoxyParamCaption})}
+
+
+
+check if program used for the program exists within the declared P\+A\+TH 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em term} & string of the program with or without parameters\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a02e241b6b8590a94931502627639bbce}\label{cronjob_8c_a02e241b6b8590a94931502627639bbce}} 
+\index{cronjob.\+c@{cronjob.\+c}!delete\+Crontab@{delete\+Crontab}}
+\index{delete\+Crontab@{delete\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{delete\+Crontab()}{deleteCrontab()}}
+{\footnotesize\ttfamily int delete\+Crontab (\begin{DoxyParamCaption}\item[{char $\ast$}]{term,  }\item[{struct loc\+\_\+env $\ast$}]{environment }\end{DoxyParamCaption})}
+
+
+
+remove each cronjob entry containing the term 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em term} & term to be searched for \\
+\hline
+\mbox{\tt in}  & {\em environment} & structure with info about the local user env variables\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & deletion successful \\
+\hline
+{\em -\/1} & deletion failed \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a2f599a09ef535763c4c6d2ca0d4a915f}\label{cronjob_8c_a2f599a09ef535763c4c6d2ca0d4a915f}} 
+\index{cronjob.\+c@{cronjob.\+c}!get\+Local\+Env@{get\+Local\+Env}}
+\index{get\+Local\+Env@{get\+Local\+Env}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{get\+Local\+Env()}{getLocalEnv()}}
+{\footnotesize\ttfamily int get\+Local\+Env (\begin{DoxyParamCaption}\item[{struct loc\+\_\+env $\ast$}]{environment }\end{DoxyParamCaption})}
+
+
+
+retrieve values from the P\+A\+TH and U\+S\+ER variable and parse them to a string 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em environment} & structure with P\+A\+TH and U\+S\+ER vars + cron environment indicator\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a721adf65517d49f9e612e68b8fe8217b}\label{cronjob_8c_a721adf65517d49f9e612e68b8fe8217b}} 
+\index{cronjob.\+c@{cronjob.\+c}!handle\+Crontab@{handle\+Crontab}}
+\index{handle\+Crontab@{handle\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{handle\+Crontab()}{handleCrontab()}}
+{\footnotesize\ttfamily C\+R\+O\+N\+\_\+\+S\+T\+A\+TE handle\+Crontab (\begin{DoxyParamCaption}\item[{char $\ast$}]{term,  }\item[{int}]{new\+\_\+interval }\end{DoxyParamCaption})}
+
+
+
+check the output of crontab to decide for creation, change or delete 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em term} & word that has to be in the crontab \\
+\hline
+\mbox{\tt in}  & {\em new\+\_\+interval} & integer value from the interval flag\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em C\+R\+O\+N\+\_\+\+A\+C\+T\+I\+VE} & cronjob found and not changed \\
+\hline
+{\em C\+R\+O\+N\+\_\+\+C\+H\+A\+N\+GE} & cronjob found and changed \\
+\hline
+{\em C\+R\+O\+N\+\_\+\+I\+N\+A\+C\+T\+I\+VE} & cronjob not found \\
+\hline
+{\em C\+R\+O\+N\+\_\+\+D\+E\+L\+E\+TE} & cronjob found but deleted by user \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_ab7f7c047bc876c265a9de54cee2cb3e5}\label{cronjob_8c_ab7f7c047bc876c265a9de54cee2cb3e5}} 
+\index{cronjob.\+c@{cronjob.\+c}!list\+Crontab@{list\+Crontab}}
+\index{list\+Crontab@{list\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{list\+Crontab()}{listCrontab()}}
+{\footnotesize\ttfamily void list\+Crontab (\begin{DoxyParamCaption}\item[{char $\ast$}]{user,  }\item[{char $\ast$}]{output }\end{DoxyParamCaption})}
+
+
+
+combines the username with the crontab -\/u xxx -\/l command 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em user} & name of the user logged in \\
+\hline
+\mbox{\tt in}  & {\em output} & string containing the finished command \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{cronjob_8c_a0e47eb59d2c080f376f1a6d5f237b479}\label{cronjob_8c_a0e47eb59d2c080f376f1a6d5f237b479}} 
+\index{cronjob.\+c@{cronjob.\+c}!parse\+Crontab@{parse\+Crontab}}
+\index{parse\+Crontab@{parse\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{parse\+Crontab()}{parseCrontab()}}
+{\footnotesize\ttfamily int parse\+Crontab (\begin{DoxyParamCaption}\item[{char}]{crontab\mbox{[}$\,$\mbox{]},  }\item[{int $\ast$}]{interval }\end{DoxyParamCaption})}
+
+
+
+split the arguments of the crontab output to get the minutes/hour interval 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em crontab} & the row out of the crontab with the cronjob \\
+\hline
+\mbox{\tt out}  & {\em interval} & the parsed minutes interval as integer\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a03b3b1c8d5055d75a39a2e8e187a2b3f}\label{cronjob_8c_a03b3b1c8d5055d75a39a2e8e187a2b3f}} 
+\index{cronjob.\+c@{cronjob.\+c}!read\+Crontab@{read\+Crontab}}
+\index{read\+Crontab@{read\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{read\+Crontab()}{readCrontab()}}
+{\footnotesize\ttfamily int read\+Crontab (\begin{DoxyParamCaption}\item[{F\+I\+LE $\ast$}]{process,  }\item[{int}]{size,  }\item[{char}]{output\mbox{[}$\,$\mbox{]}\mbox{[}size\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+read the content of crontab -\/u \$\+U\+S\+ER -\/l and save to string array 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em process} & F\+I\+LE pointer to process opened by popen() \\
+\hline
+\mbox{\tt in}  & {\em size} & size of the 2nd dimension of the 2D Array \\
+\hline
+\mbox{\tt out}  & {\em output} & array of strings with the crontab output\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & S\+U\+C\+C\+E\+SS \\
+\hline
+{\em -\/1} & F\+A\+I\+L\+U\+RE \\
+\hline
+\end{DoxyRetVals}
+\mbox{\Hypertarget{cronjob_8c_a99430bcf241251e08d9e60574e737de4}\label{cronjob_8c_a99430bcf241251e08d9e60574e737de4}} 
+\index{cronjob.\+c@{cronjob.\+c}!write\+Crontab@{write\+Crontab}}
+\index{write\+Crontab@{write\+Crontab}!cronjob.\+c@{cronjob.\+c}}
+\subsubsection{\texorpdfstring{write\+Crontab()}{writeCrontab()}}
+{\footnotesize\ttfamily int write\+Crontab (\begin{DoxyParamCaption}\item[{char $\ast$}]{term,  }\item[{int}]{interval,  }\item[{struct loc\+\_\+env $\ast$}]{local\+\_\+environment }\end{DoxyParamCaption})}
+
+
+
+change the interval amount in the crontab entry to a new value 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em term} & command for the cronjob \\
+\hline
+\mbox{\tt in}  & {\em interval} & minute amount to replace the current \\
+\hline
+\mbox{\tt in}  & {\em local\+\_\+environment} & P\+A\+TH and U\+S\+ER of local environment\\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em 0} & successful edit, new entry in str \\
+\hline
+{\em -\/1} & edit failed, str unchanged \\
+\hline
+\end{DoxyRetVals}
