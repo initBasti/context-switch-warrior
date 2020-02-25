@@ -103,21 +103,16 @@ int main(int argc, char **argv) {
 		.excl={
 			.type={{.weekdays={0}, .single_days={{0}}, .holiday_start={0},
 					.holiday_end={0}, .list_len=0, .sub_type={0}}},
-			.type_name={{0}}, .amount=0,
-		},
-		.delay={0}, .cancel=0, .notify=0, .interval=0
-	}; 
+			.type_name={{0}}, .amount=0, },
+		.delay={0}, .cancel=0, .notify=0, .interval=0 }; 
 	struct error error = {
-		.amount = 0, .rowindex = {0}, .error_code = {0}, .error_msg = {{0}},
-	};
+		.amount = 0, .rowindex = {0}, .error_code = {0}, .error_msg = {{0}} };
 	struct configcontent content = {
 		.amount = 0, .rowindex = {0}, .option_name = {{{0}}}, .option_value = {{{0}}},
-		.sub_option_amount = {0}
-	};
+		.sub_option_amount = {0} };
 	struct flags flag = {
 		.verbose = &verbose,.cancel_on=-1,
-		.notify_on=-1,.cron_interval=-1
-	};
+		.notify_on=-1,.cron_interval=-1 };
 	char current_context[MAX_CONTEXT] = {0};
 	char command[MAX_COMMAND] = {0};
 
@@ -230,6 +225,10 @@ int main(int argc, char **argv) {
 				datetime.tm_year+1900, datetime.tm_mon+1,
 				datetime.tm_mday, datetime.tm_hour,
 				datetime.tm_min);
+	}
+
+	if(config.delay.tm_year + config.delay.tm_mon) {
+		return EXIT_SUCCESS;
 	}
 
 	if(flag.show == 1 && config.excl.amount > 0) {
