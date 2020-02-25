@@ -15,14 +15,15 @@
  *
  * \section	intro_sec	Introduction
  *
- * An extension for taskwarrior, that lets the user define a schedule for when certain contexts
- * should be active.
+ * An extension for taskwarrior, that lets the user define a schedule for when certain
+ * contexts should be active.
  *
  * \subsection	intro_sub	Ways to use this tool
  *
  * - Define a schedule and let the program run in the background without interaction
  * - Let the program notify you when certain actions are pending
- * - Cancel active tasks automatically on a switch, in order to prevent tasks from getting excess length
+ * - Cancel active tasks automatically on a switch, in order to prevent tasks
+ *   from getting excess length
  * - Delay an imminent switch or cancel from happening with the delay command
  *
  * \section install_sec	How to install the tool
@@ -49,28 +50,35 @@
  *   at taskwarrior to see which contexts you have defined you can either
  *   	+ look into ~/.taskrc at the bottom
  *   	+ type task _context into your terminal
- * - If you want to exclude your schedule from certain weekdays enter the following line into the config:
+ * - If you want to exclude your schedule from certain weekdays enter the following line
+ *   into the config:
  *   	+ Exclude=permanent(sa,su) (Exclude every saturday and sunday)
  *   	or
- *   	+ Exclude=temporary(2020-12-22#2020-12-28) (Exclude from the 22nd december until the 28th december of 2020)
+ *   	+ Exclude=temporary(2020-12-22#2020-12-28) (Exclude from the 22nd december
+ *   	until the 28th december of 2020)
  *   	or
- *   	+ Exclude=temporary(2020-08-12,2020-08-15) (Exclude the 12th and 15th august of 2020)
+ *   	+ Exclude=temporary(2020-08-12,2020-08-15) (Exclude the 12th and
+ *   	15th august of 2020)
  * 
  * \subsection	cronjob	Cronjob
  *
- * - initially the program will create a cronjob with a 1 minute interval, if you desire a different interval:
+ * - initially the program will create a cronjob with a 1 minute interval, if you
+ *   desire a different interval:
  *   	+ start the program with the -i {MIN} option
  *   	+ Example: "csw -i 3" install a 3 minute interval
  * 
  * \subsection	cancel-notify	Task cancel and notification
  *
- * - both options can be toggled with the -c {1 = on|0 = off} (cancel) and -n {1 = on|0 = off} option
+ * - both options can be toggled with the -c {1 = on|0 = off} (cancel) and
+ *   -n {1 = on|0 = off} option
  *
  * \subsection	delay	Delay a switch and/or cancel from happening for a time-span
  *
- * - with the -d {time-span} option you can define a time a span until which no switch/cancel will occur
+ * - with the -d {time-span} option you can define a time a span until which
+ *   no switch/cancel will occur
  *   	+ Example time span for 12h: -d 720  -d 720min -d 12h -d 0.5d -d 720m -d 12hour
- *   	+ When a new delay is created upon an existing old one the new one is added to the old
+ *   	+ When a new delay is created upon an existing old one the new one is added to
+ *   	the old
  *   	 => 20min remaining on the old one , create new for 30min => 50min delay
  */
 
