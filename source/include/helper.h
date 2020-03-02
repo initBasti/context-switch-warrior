@@ -37,6 +37,7 @@ int parseTimeSpan(char*);
 
 /* struct tm modification functions*/
 void increaseTime(int, struct tm*);
+TIME_CMP compareDate(struct tm*, struct tm*);
 TIME_CMP compareTime(struct tm*, struct tm*);
 void resetTm(struct tm*);
 void copyTm(struct tm*, struct tm*);

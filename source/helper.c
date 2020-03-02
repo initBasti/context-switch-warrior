@@ -8,6 +8,7 @@
 #include "include/helper.h"
 
 
+long encodeDay(struct tm*);
 long encode(struct tm*);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -347,10 +348,38 @@ void increaseTime(int min, struct tm* time)
 }
 
 /**
+ * @brief compare 2 dates as struct tm with each other without hour/minute/sec
+ *
+ * @param[in]	time	current date and time
+ * @param[in]	spec	specified date to be compared
+ *
+ * @retval	TIME_EQUAL	both have the exact same date
+ * @retval	TIME_SMALLER	specific date smaller than the current
+ * @retval	TIME_BIGGER	specific date bigger than the current
+ * @retval	TIME_ERROR	no current time provided
+ */
+TIME_CMP compareDate(struct tm* time, struct tm* spec)
+{
+	if(!time || time->tm_year+time->tm_mon+time->tm_mday == 0) {
+		return TIME_ERROR;
+	}
+	if(encodeDay(time) > encodeDay(spec)) {
+		return TIME_SMALLER;
+	}
+	if(encodeDay(time) < encodeDay(spec)) {
+		return TIME_BIGGER;
+	}
+	if(encodeDay(time) == encodeDay(spec)) {
+		return TIME_EQUAL;
+	}
+	return TIME_ERROR;
+}
+
+/**
  * @brief compare 2 dates as struct tm with each other
  *
- * @param[in]	time	the current date and time
- * @param[in]	spec	the specified date and time to be compared
+ * @param[in]	time	current date and time
+ * @param[in]	spec	specified date and time to be compared
  *
  * @retval	TIME_EQUAL	both have the exact same date and time
  * @retval	TIME_SMALLER	specific date &/| time is smaller than the current
@@ -372,6 +401,21 @@ TIME_CMP compareTime(struct tm* time, struct tm* spec)
 		return TIME_EQUAL;
 	}
 	return TIME_ERROR;
+}
+
+/**
+ * @brief	encode a date by multiplying the the members with a value 10^x
+ *
+ * without hour/minute/sec
+ * 
+ * @param[in]	tm structure instance pointer
+ *
+ * @retval	encoded date
+ */
+long encodeDay(struct tm* time)
+{
+	return time->tm_year*10000000000 + time->tm_mon*100000000 +
+		time->tm_mday*1000000;
 }
 
 /**
