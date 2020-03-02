@@ -43,13 +43,18 @@ EXCLUSION_STATE switchExclusion(struct exclusion* excl, struct tm *date)
 		else if(strncmp(excl->type_name[i], "temp", 5) == 0) {
 			if(strncmp(excl->type[i].sub_type, "list", 5) == 0) {
 				for(int j = 0 ; j < excl->type[i].list_len ; j++) {
-					if(compareTime(&excl->type[i].single_days[j], date) == TIME_EQUAL){
+					if(compareDate(&excl->type[i].single_days[j], date) == TIME_EQUAL){
 						return EXCLUSION_MATCH;
 					}
 				}
 			}
 			else if(strncmp(excl->type[i].sub_type, "range", 6) == 0) {
 				if(rangeMatch(&excl->type[i], date) == 0) {
+					return EXCLUSION_MATCH;
+				}
+			}
+			else if(strncmp(excl->type[i].sub_type, "solo", 5) == 0) {
+				if(compareDate(&excl->type[i].single_days[0], date) == TIME_EQUAL){
 					return EXCLUSION_MATCH;
 				}
 			}
