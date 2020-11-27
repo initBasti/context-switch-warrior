@@ -27,7 +27,7 @@
  * - Delay an imminent switch or cancel from happening with the delay command
  *
  * \section install_sec	How to install the tool
- * 
+ *
  * platform: linux
  * required libs: fcntl.h, getopt.h
  *
@@ -59,14 +59,14 @@
  *   	or
  *   	+ Exclude=temporary(2020-08-12,2020-08-15) (Exclude the 12th and
  *   	15th august of 2020)
- * 
+ *
  * \subsection	cronjob	Cronjob
  *
  * - initially the program will create a cronjob with a 1 minute interval, if you
  *   desire a different interval:
  *   	+ start the program with the -i {MIN} option
  *   	+ Example: "csw -i 3" install a 3 minute interval
- * 
+ *
  * \subsection	cancel-notify	Task cancel and notification
  *
  * - both options can be toggled with the -c {1 = on|0 = off} (cancel) and

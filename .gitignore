@@ -4,7 +4,6 @@ build/*
 doxywarning.txt
 .start_auto.sh
 TODO.txt
-test/*
 unity/*
 callgraph
 csw
