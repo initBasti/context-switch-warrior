@@ -1,5 +1,5 @@
 # Context-Switch-Warrior
-Add on for **taskwarrior** to *switch* the task **context** depending on the *daytime* and the *defined schedule*.
+Add-on for **taskwarrior** to *switch* the task **context** depending on the *daytime* and the *defined schedule*.
 
 ### Features:
 * create and modify a cronjob for the program
@@ -30,12 +30,10 @@ Add on for **taskwarrior** to *switch* the task **context** depending on the *da
 
 ### Testing
 make test
-    
+
 *generates results in the build/results folder*
 
 ---
 
 #### Found Bugs or want to contribute?
 please contact me @ sebastian.fricke.linux@gmx.de
-
----
