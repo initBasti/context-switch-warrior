@@ -36,21 +36,6 @@ LINK=gcc
 DEPEND=gcc -MM -MT $(@:$(PATHD)%.d=$(PATHO)%.o) >$@
 INCLUDES = -I$(PATHS) -I$(PATHU) -I$(PATHI) -I$(PATHT)
 
-RESULTS = $(patsubst $(PATHT)test_%.c,$(PATHR)test_%.txt,$(SRCT) )
-
-#PASSED = `grep -s PASS $(PATHR)*.txt`
-FAIL = `grep -s FAIL $(PATHR)*.txt`
-IGNORE = `grep -s IGNORE $(PATHR)*.txt`
-
-test: $(BUILD_PATHS) $(RESULTS)
-	@echo "-----------------------\nIGNORES:\n-----------------------"
-	@echo "$(IGNORE)"
-	@echo "-----------------------\nFAILURES:\n-----------------------"
-	@echo "$(FAIL)"
-	#@echo "-----------------------\nPASSED:\n-----------------------"
-	#@echo "$(PASSED)"
-	@echo "\nDONE"
-
 $(PATHR)%.txt: $(PATHB)%.$(TARGET_EXTENSION)
 	-./$< > $@ 2>&1
 
@@ -59,41 +44,41 @@ all: $(PATHBIN)$(BIN_NAME)
 	@$(RM) $(BIN_NAME)
 	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
 
-test: $(PATHB)test_config.out $(PATHB)test_substring.out $(PATHB)test_exclude.out $(PATHB)test_switch.out $(PATHB)test_cronjob.out $(PATHB)test_helper.out $(PATHB)test_delay.out $(PATHB)test_args.out
+test: $(PATHBIN)test_config.out $(PATHBIN)test_substring.out $(PATHBIN)test_exclude.out $(PATHBIN)test_switch.out $(PATHBIN)test_cronjob.out $(PATHBIN)test_helper.out $(PATHBIN)test_delay.out $(PATHBIN)test_args.out
 
 $(PATHBIN)$(BIN_NAME): $(OBJECTS)
 	@echo "Linking: $@"
 	$(LINK) $(OBJECTS) -o $@
 
-$(PATHB)test_config.out: $(PATHO)test_config.o $(PATHO)config.o $(PATHU)unity.o $(PATHO)helper.o $(PATHO)substring.o $(PATHO)exclude.o $(PATHO)delay.o
+$(PATHBIN)test_config.out: $(PATHO)test_config.o $(PATHO)config.o $(PATHU)unity.o $(PATHO)helper.o $(PATHO)substring.o $(PATHO)exclude.o $(PATHO)delay.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_exclude.out: $(PATHO)test_exclude.o $(PATHO)exclude.o $(PATHU)unity.o $(PATHO)helper.o $(PATHO)substring.o
+$(PATHBIN)test_exclude.out: $(PATHO)test_exclude.o $(PATHO)exclude.o $(PATHU)unity.o $(PATHO)helper.o $(PATHO)substring.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_substring.out: $(PATHO)test_substring.o $(PATHO)substring.o $(PATHU)unity.o $(PATHO)helper.o
+$(PATHBIN)test_substring.out: $(PATHO)test_substring.o $(PATHO)substring.o $(PATHU)unity.o $(PATHO)helper.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_switch.out: $(PATHO)test_switch.o $(PATHO)switch.o $(PATHU)unity.o $(PATHO)helper.o
+$(PATHBIN)test_switch.out: $(PATHO)test_switch.o $(PATHO)switch.o $(PATHU)unity.o $(PATHO)helper.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_cronjob.out: $(PATHO)test_cronjob.o $(PATHO)cronjob.o $(PATHU)unity.o $(PATHO)helper.o
+$(PATHBIN)test_cronjob.out: $(PATHO)test_cronjob.o $(PATHO)cronjob.o $(PATHU)unity.o $(PATHO)helper.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_delay.out: $(PATHO)test_delay.o $(PATHO)delay.o $(PATHU)unity.o $(PATHO)helper.o
+$(PATHBIN)test_delay.out: $(PATHO)test_delay.o $(PATHO)delay.o $(PATHU)unity.o $(PATHO)helper.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_args.out: $(PATHO)test_args.o $(PATHO)args.o $(PATHU)unity.o $(PATHO)helper.o
+$(PATHBIN)test_args.out: $(PATHO)test_args.o $(PATHO)args.o $(PATHU)unity.o $(PATHO)helper.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
-$(PATHB)test_helper.out: $(PATHO)test_helper.o $(PATHO)helper.o $(PATHU)unity.o
+$(PATHBIN)test_helper.out: $(PATHO)test_helper.o $(PATHO)helper.o $(PATHU)unity.o
 	@echo "Linking: $@"
 	$(LINK) $(INCLUDES) -o $@ $^
 
