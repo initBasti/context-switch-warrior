@@ -27,9 +27,8 @@ void test_parseTime(void)
 	int result[PARSE_TIME_TEST] = {0};
 	int expect[PARSE_TIME_TEST] = {0, 0, 0, -1, -1, -1};
 
-	for(int i = 0 ; i < PARSE_TIME_TEST ; i++) {
+	for(int i = 0 ; i < PARSE_TIME_TEST ; i++)
 		result[i] = parseTime(&hour[i], &minute[i], option[i]);
-	}
 
 	for(int i = 0 ; i < PARSE_TIME_TEST ; i++) {
 		snprintf(msg, MAX_ROW, "%d. hour expect: %d was %d",i,
@@ -121,9 +120,9 @@ void test_parseExclusion(void)
 						};
 
 	struct exclusion test[19];
-	for(int i = 0 ; i < 19 ; i++) {
+	for(int i = 0 ; i < 19 ; i++)
 		initExclusionStruct(&test[i]);
-	}
+
 	PARSER_STATE result_set[19] = {0};
 
 	PARSER_STATE expected_result[19] = {
@@ -133,15 +132,14 @@ void test_parseExclusion(void)
 		PARSER_ERROR, PARSER_FORMAT, PARSER_WRONGSIZE, PARSER_FORMAT,
 		PARSER_SUCCESS, PARSER_ERROR, PARSER_ERROR
 	};
-	for(int i = 0 ; i < 5 ; i++) {
+	for(int i = 0 ; i < 5 ; i++)
 		result_set[i] = parseExclusion(&test[i], &good[i][0]);
-	}
-	for(int j = 0 ; j < 14 ; j++) {
+
+	for(int j = 0 ; j < 14 ; j++)
 		result_set[j+5] = parseExclusion(&test[j+5], &bad[j][0]);
-	}
-	for(int i = 0 ; i < 19 ; i++) {
+
+	for(int i = 0 ; i < 19 ; i++)
 		TEST_ASSERT_EQUAL_INT(expected_result[i], result_set[i]);
-	}
 }
 
 void test_parseTemporary(void)
@@ -170,13 +168,13 @@ void test_parseTemporary(void)
 	int result_set[8] = {0};
 	int expected_result[8] = {0,0,0,0,-2,-2,-1,-1};
 
-	for(int i = 0 ; i < 4 ; i++) {
+	for(int i = 0 ; i < 4 ; i++)
 		result_set[i] = parseTemporary(&good[i][0], &test);
-	}
+
 	/* needs to be seperated for the order of the results */
-	for(int i = 0 ; i < 4 ; i++) {
+	for(int i = 0 ; i < 4 ; i++)
 		result_set[i+4] = parseTemporary(&bad[i][0], &test);
-	}
+
 	for(int j = 0 ; j < 8 ; j++) {
 		if(strncmp(test.type_name[j], "temp", 4) == 0) {
 			if(strncmp(test.type[j].sub_type, "solo", 4) == 0) {
@@ -184,16 +182,14 @@ void test_parseTemporary(void)
 				result[index][1] = test.type[j].single_days[0].tm_mon;
 				result[index][2] = test.type[j].single_days[0].tm_mday;
 				index++;
-			}
-			else if(strncmp(test.type[j].sub_type, "list", 4) == 0) {
+			} else if(strncmp(test.type[j].sub_type, "list", 4) == 0) {
 				for(int k = 0 ; k < test.type[j].list_len ; k++) {
 					result[index][0] = test.type[j].single_days[k].tm_year;
 					result[index][1] = test.type[j].single_days[k].tm_mon;
 					result[index][2] = test.type[j].single_days[k].tm_mday;
 					index++;
 				}
-			}
-			else if(strncmp(test.type[j].sub_type, "range", 5) == 0) {
+			} else if(strncmp(test.type[j].sub_type, "range", 5) == 0) {
 				result[index][0] = test.type[j].holiday_start.tm_year;
 				result[index][1] = test.type[j].holiday_start.tm_mon;
 				result[index][2] = test.type[j].holiday_start.tm_mday;
@@ -201,16 +197,15 @@ void test_parseTemporary(void)
 				result[index][0] = test.type[j].holiday_end.tm_year;
 				result[index][1] = test.type[j].holiday_end.tm_mon;
 				result[index][2] = test.type[j].holiday_end.tm_mday;
-				if(j < 7) {
+				if(j < 7)
 					index++;
-				}
 			}
 		}
 	}
 	for(int i = 0 ; i < 8 ; i++) {
-		for(int j = 0 ; j < 3 ; j++) {
+		for(int j = 0 ; j < 3 ; j++)
 			TEST_ASSERT_EQUAL_INT(expected[i][j], result[i][j]);
-		}
+
 		TEST_ASSERT_EQUAL_INT(expected_result[i], result_set[i]);
 	}
 }
@@ -248,16 +243,13 @@ void test_parsePermanent(void)
 			if(strncmp(test.type_name[index], "perm", 4) == 0) {
 				if(strncmp(test.type[index].sub_type, "solo", 4) == 0) {
 					result[i][0] = test.type[i].weekdays[0];
-				}
-				else if(strncmp(test.type[index].sub_type, "list", 4) == 0) {
-					for(int k = 0 ; k < test.type[index].list_len ; k++) {
+				} else if(strncmp(test.type[index].sub_type, "list", 4) == 0) {
+					for(int k = 0 ; k < test.type[index].list_len ; k++)
 						result[i][k] = test.type[index].weekdays[k];
-					}
 				}
 				index++;
 			}
-		}
-		else {
+		} else {
 			result[i][0] = 0;
 		}
 	}
@@ -268,15 +260,12 @@ void test_parsePermanent(void)
 			if(strncmp(test.type_name[index], "perm", 4) == 0) {
 				if(strncmp(test.type[index].sub_type, "solo", 4) == 0) {
 					result[i][0] = test.type[i].weekdays[0];
-				}
-				else if(strncmp(test.type[index].sub_type, "list", 4) == 0) {
-					for(int k = 0 ; k < test.type[index].list_len ; k++) {
+				} else if(strncmp(test.type[index].sub_type, "list", 4) == 0) {
+					for(int k = 0 ; k < test.type[index].list_len ; k++)
 						result[i][k] = test.type[index].weekdays[k];
-					}
 				}
-				if(index < 7) {
+				if(index < 7)
 					index++;
-				}
 			}
 		}
 		else {

@@ -44,30 +44,28 @@ PARSER_STATE parseExclusion(struct exclusion *excl, char *option)
 	char *token = NULL;
 	int state = 0;
 
-	if(!option) {
+	if(!option)
 		return PARSER_ERROR;
-	}
+
 	stripChar(option, ' ');
 
 	token = strtok(option, "(");
-	if(!token) {
+	if(!token)
 		goto wrong_format;
-	}
+
 	if(strncmp(token, "permanent", 10) == 0) {
 		token = strtok(NULL, ")");
-		if(!token) {
+		if(!token)
 			goto parse_error;
-		}
+
 		state = parsePermanent(token, excl);
-	}
-	else if(strncmp(token, "temporary", 10) == 0) {
+	} else if(strncmp(token, "temporary", 10) == 0) {
 		token = strtok(NULL, ")");
-		if(!token) {
+		if(!token)
 			goto parse_error;
-		}
+
 		state = parseTemporary(token, excl);
-	}
-	else {
+	} else {
 		goto parse_error;
 	}
 
@@ -120,9 +118,9 @@ int parsePermanent(char *input, struct exclusion *excl)
 	struct substr *head = allocateSubstring();
 
 	if(strchr(input,',') != NULL) {
-		if(getSubstring(input, head, &list_len, ',') != 0) {
+		if(getSubstring(input, head, &list_len, ',') != 0)
 			return -1;
-		}
+
 		if(equalListElements(head) != 0) {
 			freeSubstring(head);
 			return -2;
@@ -137,13 +135,12 @@ int parsePermanent(char *input, struct exclusion *excl)
 			length = &excl->type[excl->amount].list_len;
 			size_check = exclTokenLength(&input_len, "perm", ptr->member);
 			if(size_check == 0) {
-				if(*length >= 7) {
+				if(*length >= 7)
 					break;
-				}
+
 				set_check = dayToSet(set, *length,
 										parseWeekday(ptr->member, DAY));
-			}
-			else {
+			} else {
 				freeSubstring(head);
 				return -2;
 			}

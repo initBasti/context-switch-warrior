@@ -116,9 +116,9 @@ int main(int argc, char **argv) {
 	char current_context[MAX_CONTEXT] = {0};
 	char command[MAX_COMMAND] = {0};
 
-	if(getArgs(&flag, argc, argv, "hd:si:c:n:v::") == -1) {
+	if(getArgs(&flag, argc, argv, "hd:si:c:n:v::") == -1)
 		return 1;
-	}
+
 	if(flag.notify_on == 1) {
 		if(checkNotificationSetup() != 0) {
 			fprintf(stderr, "notify-send not found, documentation for instruction\n");
@@ -132,45 +132,38 @@ int main(int argc, char **argv) {
 	cronjob_state = handleCrontab("csw", flag.cron_interval);
 	switch(cronjob_state) {
 		case CRON_ACTIVE:
-			if(verbose) {
+			if(verbose)
 				printf("Active cronjob\n");
-			}
 			break;
 		case CRON_CHANGE:
-			if(verbose) {
+			if(verbose)
 				printf("Active cronjob, modification successful\n");
-			}
 			break;
 		case CRON_INACTIVE:
-			if(verbose) {
+			if(verbose)
 				printf("Inactive cronjob\n");
-			}
 			break;
 		case CRON_DELETE:
-			if(verbose) {
+			if(verbose)
 				printf("Deleted cronjob\n");
-			}
 			break;
 		default:
 			fprintf(stderr, "ERROR, handleCrontab failed\n");
 	};
 
 	time(&rawtime);
-	if(getDate(&datetime, rawtime) == -1) {
+	if(getDate(&datetime, rawtime) == -1)
 		return EXIT_FAILURE;
-	}
 
 	file_state = findConfig("config", &config_path[0]);
 	switch(file_state) {
 		case FILE_GOOD:
-			if(verbose) {
+			if(verbose)
 				printf("File found and in good state at: %s\n", config_path);
-			}
 			break;
 		case FILE_NOTFOUND:
-			if(verbose) {
+			if(verbose)
 				printf("File was not found in .task/csw/\n");
-			}
 			return EXIT_FAILURE;
 		case FILE_ERROR:
 			fprintf(stderr,"ERROR: config file finder caused an error\n");
@@ -195,26 +188,23 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "ERROR: Couldn't aquire the active context\n");
 		return EXIT_FAILURE;
 	}
-	if(parseConfig(&content, &error, &config) != 0) {
+	if(parseConfig(&content, &error, &config) != 0)
 		return EXIT_FAILURE;
-	}
-	if(flag.show == 1) {
+
+	if(flag.show == 1)
 		showZones(&config);
-	}
 
 	if(syncConfig(&config, &flag, &datetime) == 1) {
-		if(verbose) {
+		if(verbose)
 			printf("write changes to the config file\n");
-		}
-		if(writeConfig(&config, config_path) == -1) {
+
+		if(writeConfig(&config, config_path) == -1)
 			return EXIT_FAILURE;
-		}		
 	}
 
 	if(config.notify == 1 && error.amount > 0) {
-		if(notifyError(&error) == -1 && verbose) {
+		if(notifyError(&error) == -1 && verbose)
 			fprintf(stderr, "WARNING: sending notification to notify daemon failed\n");
-		}
 	}
 
 	if(verbose) {
@@ -227,17 +217,15 @@ int main(int argc, char **argv) {
 				datetime.tm_min);
 	}
 
-	if(config.delay.tm_year + config.delay.tm_mon) {
+	if(config.delay.tm_year + config.delay.tm_mon)
 		return EXIT_SUCCESS;
-	}
 
-	if(flag.show == 1 && config.excl.amount > 0) {
+	if(flag.show == 1 && config.excl.amount > 0)
 		showExclusions(&config.excl);
-	}
+
 	if(switchExclusion(&config.excl, &datetime) == 0) {
-		if(verbose) {
+		if(verbose)
 			printf("found a exclusion that matches\n");
-		}
 		return EXIT_SUCCESS;
 	}
 
@@ -250,9 +238,8 @@ int main(int argc, char **argv) {
 				return EXIT_FAILURE;
 			}
 			if(config.cancel && activeTask()) {
-				if(stopTask() != 0) {
+				if(stopTask() != 0)
 					fprintf(stderr, "Task stop failed!\n");
-				}
 			}
 			if(verbose)
 				printf("Switch succesful!\n");

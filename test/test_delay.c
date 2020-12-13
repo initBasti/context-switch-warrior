@@ -76,9 +76,8 @@ void test_checkDelay(void)
 		{.tm_year=2020,.tm_mon=11,.tm_mday=10,.tm_hour=5,.tm_min=30}
 	};
 
-	for(int i = 0 ; i < DELAY_CHECK_TEST ; i++) {
+	for(int i = 0 ; i < DELAY_CHECK_TEST ; i++)
 		result[i] = checkDelay(flag[i], &delay[i], &time[i]);
-	}
 
 	TEST_ASSERT_EQUAL_INT_ARRAY(expect, result, DELAY_CHECK_TEST);
 }
@@ -148,9 +147,8 @@ void test_parseDelay(void)
 		}
 	};
 
-	for(int i = 0 ; i < DELAY_TEST ; i++) {
+	for(int i = 0 ; i < DELAY_TEST ; i++)
 		result[i] = parseDelay(&test_delay[i], test_str[i]);
-	}
 
 	for(int i = 0 ; i < DELAY_TEST ; i++) {
 		snprintf(msg, MAX_ROW, "%s result exp: %d was: %d",

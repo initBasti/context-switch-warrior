@@ -13,7 +13,8 @@ char *out_path = NULL;
 void setUp(void)
 {
 	out_path = malloc(sizeof(char)*PATH_MAX);
-	if(!out_path) {return;}
+	if(!out_path)
+		return;
 }
 
 void tearDown(void)
@@ -48,9 +49,9 @@ void test_findConfig_good(void)
 	int size_user = 0;
 
 	username = getenv("USER");
-	if(!username) {
+	if(!username)
 		return;
-	}
+
 	size_user = strlen(username);
 
 	strncpy(path, "/home/", PATH_MAX);
@@ -59,16 +60,14 @@ void test_findConfig_good(void)
 	strncat(path, pathname, 12);
 
 	fd = open(path, O_RDWR|O_CREAT, 0777);
-	if(fd < 0) {
+	if(fd < 0)
 		perror("file creation failed");
-	}
 
 	for(int j = 0 ; j < MAX_ZONES ; j++) {
 		test_len = strnlen(buffer, MAX_ROW);
 		write_size = write(fd, buffer, test_len);
-		if(write_size < 1) {
+		if(write_size < 1)
 			perror("write fail");
-		}
 	}
 	if(close(fd) < 0) {
 		perror("file closing failed");
@@ -174,14 +173,12 @@ void test_readConfig(void)
 	strncat(config_path, "/.task/csw/.test_read_config", 30);
 
 	test_file = fopen(config_path, "w");
-	if(!test_file) {
+	if(!test_file)
 		perror("file creation failed");
-	}
 
 	for(int j = 0 ; j < MAX_AMOUNT_OPTIONS ; j++) {
-		if(buffer[j][0] != '\0') {
+		if(buffer[j][0] != '\0')
 			fprintf(test_file, "%s", buffer[j]);
-		}
 	}
 	rewind(test_file);
 	if(fclose(test_file) == EOF) {
@@ -386,9 +383,8 @@ void test_indexInList(void)
 								-1,0,0,-1,-1,-1,-1,-1};
 
 	for(int i = 0 ; i < IN_TEST ; i++) {
-		for(int j = 0 ; j < IN_TEST*2 ; j++) {
+		for(int j = 0 ; j < IN_TEST*2 ; j++)
 			result[i*8+j] = indexInList(&test_struct[i], test_index[j]);
-		}
 	}
 	TEST_ASSERT_EQUAL_INT_ARRAY(expected, result, IN_TEST*8);
 }
@@ -982,9 +978,8 @@ void test_checkExclusion(void)
 		}
 	};
 
-	for(int i = 0 ; i < EXCL_CHECK ; i++) {
+	for(int i = 0 ; i < EXCL_CHECK ; i++)
 		result[i] = checkExclusion(&excl[i], &time[i]);
-	}
 
 	for(int i = 0 ; i < EXCL_CHECK ; i++) {
 		snprintf(msg, MAX_ROW, "%d result expect: %d was %d",
@@ -1149,9 +1144,9 @@ void test_writeConfig(void)
 	char msg[MAX_MSG+35] = {0};
 
 	username = getenv("USER");
-	if(!username) {
+	if(!username)
 		return;
-	}
+
 	size_user = strlen(username);
 
 	strncpy(config_path, "/home/", PATH_MAX);
@@ -1166,15 +1161,14 @@ void test_writeConfig(void)
 		strncpy(write_buffer[2],"Delay=2019-09-13T15:30Z",MAX_ROW);
 		strncpy(write_buffer[3],"Cancel=off",MAX_ROW);
 		fd = open(config_path, O_RDWR|O_CREAT, 0777);
-		if(fd < 0) {
+		if(fd < 0)
 			perror("file creation failed");
-		}
+
 		for(int i = 0 ; i < 4 ; i++) {
 			test_len = strnlen(write_buffer[i], MAX_ROW);
 			write_size = write(fd, write_buffer[i], test_len);
-			if(write_size < 1) {
+			if(write_size < 1)
 				perror("write failed");
-			}
 		}
 		if(close(fd) < 0) {
 			perror("file closing failed");
@@ -1185,9 +1179,9 @@ void test_writeConfig(void)
 	result = writeConfig(&test_config, config_path);
 	// read content
 	read_file = fopen(config_path, "r");
-	if(!read_file) {
+	if(!read_file)
 		return;
-	}
+
 	while(fgets(content[index], MAX_ROW, read_file) != NULL) {
 		index++;
 	}

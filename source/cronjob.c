@@ -19,9 +19,8 @@
  * @param[in]	len		length of the string
  */
 #define REMOVE_NEWLINE(buffer, len) {\
-	if(buffer[strnlen(buffer, len)-1] == '\n') {\
+	if(buffer[strnlen(buffer, len)-1] == '\n')\
 		buffer[strnlen(buffer, len)-1] = '\0';\
-	}\
 };
 
 int getLocalEnv(struct loc_env*);
@@ -54,33 +53,32 @@ CRON_STATE handleCrontab(char *term, int new_interval)
 	}
 	listCrontab(environment.user, cron_command);
 	process = popen(cron_command, "r");
-	if(!process) {
+	if(!process)
 		return -1;
-	}
-	if(readCrontab(process, MAX_CRON, crontab) == -1) {
+
+	if(readCrontab(process, MAX_CRON, crontab) == -1)
 		return -1;
-	}
-	if(pclose(process) < 0) {
+
+	if(pclose(process) < 0)
 		return -1;
-	}
+
 	environment.cron_env = checkCronEnv(MAX_CRON, crontab);
 
 	find_status = checkCrontab(term, MAX_CRON, crontab, &index);
 	switch(find_status) {
 		case 0:
-			if(new_interval == -1) {
+			if(new_interval == -1)
 				return CRON_ACTIVE;
-			}
-			if(new_interval == 0 && deleteCrontab(term, &environment) == 0) {
+
+			if(new_interval == 0 && deleteCrontab(term, &environment) == 0)
 				return CRON_DELETE;
-			}
+
 			break;
 		case -1:
 			if(new_interval == -1) {
 				interval = 1;
-				if(writeCrontab(term, interval, &environment) == -1) {
+				if(writeCrontab(term, interval, &environment) == -1)
 					return CRON_INACTIVE;
-				}
 				return CRON_ACTIVE;
 			}
 			if(new_interval != 0 &&
@@ -92,14 +90,13 @@ CRON_STATE handleCrontab(char *term, int new_interval)
 			return CRON_INACTIVE;
 	}
 
-	if(parseCrontab(crontab[index], &interval) == -1) {
+	if(parseCrontab(crontab[index], &interval) == -1)
 		return CRON_INACTIVE;
-	}
+
 	if(interval != new_interval) {
 		if(deleteCrontab(term, &environment) == 0) {
-			if(writeCrontab(term, new_interval, &environment) == 0) {
+			if(writeCrontab(term, new_interval, &environment) == 0)
 				return CRON_CHANGE;
-			}
 		}
 		return CRON_INACTIVE;
 	}
@@ -125,12 +122,12 @@ int deleteCrontab(char* term, struct loc_env *environment)
 			environment->user, term, environment->user);
 
 	process = popen(delete_command, "r");
-	if(!process) {
+	if(!process)
 		return -1;
-	}
-	if(pclose(process) < 0) {
+
+	if(pclose(process) < 0)
 		return -1;
-	}
+
 	return 0;
 }
 
@@ -238,9 +235,9 @@ int parseCrontab(char crontab[], int *interval)
 	char *curr = NULL;
 	size_t cmd_part = 0;
 
-	if((temp=strrchr(crontab, '*')) != NULL) {
+	if((temp=strrchr(crontab, '*')) != NULL)
 		cmd_part = strnlen(temp, MAX_TERM)-1;
-	}
+
 	strncpy(new, crontab, strnlen(crontab, MAX_CRON)-cmd_part);
 	curr = new;
 	while((temp = strchr(curr, '*')) != NULL) {
@@ -259,9 +256,9 @@ int parseCrontab(char crontab[], int *interval)
 				return -1;
 			}
 		}
-		if(curr[0] == '/' && occ > 1) {
+		if(curr[0] == '/' && occ > 1)
 			return -1;
-		}
+
 		occ++;
 	}
 	if(occ != 5) {
@@ -289,9 +286,9 @@ int getLocalEnv(struct loc_env *environment)
 	char *username = getenv("USER");
 	char *path = getenv("PATH");
 
-	if(username == NULL || path == NULL) {
+	if(username == NULL || path == NULL)
 		return -1;
-	}
+
 	strncpy(environment->user, username, MAX_USER);
 	strncpy(environment->path, path, PATH_MAX);
 	if(strnlen(environment->user, MAX_USER) <= 1 ||
@@ -321,14 +318,13 @@ int buildCronCommand(char *term, int interval, struct loc_env *environment, char
 	char *user = environment->user;
 
 
-	if(term == NULL || interval == 0 || interval >= MAX_INTERVAL) {
+	if(term == NULL || interval == 0 || interval >= MAX_INTERVAL)
 		return -1;
-	}
 
 	REMOVE_NEWLINE(term, MAX_TERM);
-	if(checkTerm(term) == -1) {
+	if(checkTerm(term) == -1)
 		return -2;
-	}
+
 	buildCronInterval(interval, cron_string);
 	if(environment->cron_env == 0) {
 		if(snprintf(str, MAX_CRON,
@@ -387,8 +383,7 @@ int checkCrontab(char *term, int size,  char crontab[][size], int *index) {
 	if(value != 0) {
 		if(value == REG_ESPACE) {
 			fprintf(stderr, "%s\n", strerror(ENOMEM));
-		}
-		else {
+		} else {
 			fprintf(stderr, "Syntax-Error for the regex compilation with: %s",
 					pattern);
 			return -1;
@@ -396,9 +391,9 @@ int checkCrontab(char *term, int size,  char crontab[][size], int *index) {
 	}
 
 	for(int i = 0 ; i < MAX_CRON_JOBS ; i++) {
-		if(strnlen(crontab[i], MAX_CRON) <= 1) {
+		if(strnlen(crontab[i], MAX_CRON) <= 1)
 			continue;
-		}
+
 		value = regexec(&regex, crontab[i], nmatch, pmatch, REG_EXTENDED);
 		if(value == 0 && match == -1) {
 			match = 0;
@@ -453,20 +448,16 @@ int checkTerm(char* term)
 	snprintf(command, MAX_COMMAND+11, "command -v %s", term);
 
 	process = popen(command, "r");
-	if(!process) {
+	if(!process)
 		return -1;
-	}
 
-	if(fgets(buffer, MAX_ROW, process) != NULL) {
+	if(fgets(buffer, MAX_ROW, process) != NULL)
 		found = 0;
-	}
-	else {
+	else
 		found = -1;
-	}
 
-	if(pclose(process) < 0) {
+	if(pclose(process) < 0)
 		return -1;
-	}
 
 	return found;
 }
@@ -483,19 +474,16 @@ void buildCronInterval(int interval, char* output)
 	int minute = interval%60;
 
 	if(hour > 0 && minute > 0) {
-		if(snprintf(output, MAX_INTERVAL_STR, "*/%d */%d * * *", minute, hour) < 0) {
+		if(snprintf(output, MAX_INTERVAL_STR, "*/%d */%d * * *", minute, hour) < 0)
 			goto reset_return;
-		}
 	}
 	if(hour > 0 && minute == 0) {
-		if(snprintf(output, MAX_INTERVAL_STR, "* */%d * * *", hour) < 0) {
+		if(snprintf(output, MAX_INTERVAL_STR, "* */%d * * *", hour) < 0)
 			goto reset_return;
-		}
 	}
 	if(hour == 0 && minute > 0) {
-		if(snprintf(output, MAX_INTERVAL_STR, "*/%d * * * *", minute) < 0) {
+		if(snprintf(output, MAX_INTERVAL_STR, "*/%d * * * *", minute) < 0)
 			goto reset_return;
-		}
 	}
 	return;
 

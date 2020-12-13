@@ -24,7 +24,6 @@ void drawLine(int x)
 		printf("-");
 	}
 	printf("*\n");
-	
 }
 
 void lowerCase(char *option, int length)
@@ -49,9 +48,8 @@ void stripChar(char *input, char c)
 	char current = 0;
 
 	while((current=input[i++]) != '\0') {
-		if(current != c) {
+		if(current != c)
 			input[x++] = current;
-		}
 	}
 	input[x] = '\0';
 }
@@ -73,13 +71,12 @@ void showZones(struct config *conf)
 struct context* initContext(struct context* ptr)
 {
 	ptr = malloc(sizeof(struct context));
-	if(!ptr) {
+	if(!ptr)
 		return NULL;
-	}
+
 	for(int i = 0 ; i < MAX_CONTEXT ; i++) {
-		for(int j = 0 ; j < MAX_FIELD ; j++) {
+		for(int j = 0 ; j < MAX_FIELD ; j++)
 			ptr->name[i][j] = 0;
-		}
 	}
 	ptr->amount = 0;
 
@@ -167,25 +164,25 @@ int contextValidation(struct context *options, char* context)
  */
 int zoneValidation(char *name, struct zonetime *zone_t, char *context)
 {
-	if(strnlen(name, MAX_ROW) > MAX_OPTION || strnlen(name, MAX_ROW) < 1) {
+	if(strnlen(name, MAX_ROW) > MAX_OPTION || strnlen(name, MAX_ROW) < 1)
 		return -1;
-	}
+
 	if(strnlen(context, MAX_ROW) > MAX_CONTEXT ||
-			strnlen(context, MAX_ROW) < 1) {
+			strnlen(context, MAX_ROW) < 1)
 		return -1;
-	}
+
 	if(zone_t->start_hour + zone_t->start_minute == 0 ||
-			zone_t->end_hour + zone_t->end_minute == 0) {
+			zone_t->end_hour + zone_t->end_minute == 0)
 		return -1;
-	}
+
 	if(zone_t->start_hour < 0 || zone_t->start_hour > 24 ||
-			zone_t->end_hour < 0 || zone_t->end_hour > 24) {
+			zone_t->end_hour < 0 || zone_t->end_hour > 24)
 		return -1;
-	}
+
 	if(zone_t->start_minute < 0 || zone_t->start_minute > 60 ||
-			zone_t->end_minute < 0 || zone_t->end_minute > 60) {
+			zone_t->end_minute < 0 || zone_t->end_minute > 60)
 		return -1;
-	}
+
 	return 0;
 }
 
@@ -205,15 +202,15 @@ int currentContext(char* context)
 
 	strncpy(command, "task _get rc.context", MAX_COMMAND);
 	command_output = popen(command, "r");
-	if(!command_output) {
+	if(!command_output)
 		return -1;
-	}
+
 	if(fgets(full_output, MAX_CONTEXT, command_output) != NULL) {
 		strncpy(context, full_output, MAX_CONTEXT);
 		pclose(command_output);
-		if(context[0] == '\0') {
+		if(context[0] == '\0')
 			return -1;
-		}
+
 		return 0;
 	}
 	return -1;
@@ -245,37 +242,33 @@ int parseTimeSpan(char *str)
 	float float_number = 0;
 	size_t len = 0;
 
-	if(str == NULL) {
+	if(str == NULL)
 		return -1;
-	}
+
 	len = strnlen(str, DELAY_FORMAT_LEN);
 
 	if(strchr(str, '.') != NULL) {
 		sscanf(str, "%f%s", &float_number, type);
-	}
-	else if((temp=strchr(str, ',')) != NULL) {
+	} else if((temp=strchr(str, ',')) != NULL) {
 		*temp = '.';
 		sscanf(str, "%f%s", &float_number, type);
-	}
-	else if(onlyDigits(str, len)){
+	} else if(onlyDigits(str, len)){
 		sscanf(str, "%d", &number);
-		if(number>0) {
+		if(number>0)
 			return number;
-		}
-	}
-	else {
+	} else {
 		sscanf(str, "%d%s", &number, type);
 	}
 
-	if(type[0] == '\0' || (number == 0 && float_number == 0)) {
+	if(type[0] == '\0' || (number == 0 && float_number == 0))
 		return -1;
-	}
-	if(float_number > 0) {
+
+	if(float_number > 0)
 		return (int)(float_number*multiplierForType(type));
-	}
-	else if(number > 0) {
+
+	else if(number > 0)
 		return number * multiplierForType(type);
-	}
+
 	return -1;
 }
 
@@ -295,24 +288,19 @@ int parseTimeSpan(char *str)
 int multiplierForType(char* type)
 {
 	size_t len = strnlen(type, DELAY_FORMAT_LEN);
-	if(len < 1) {
+	if(len < 1)
 		return -1;
-	}
 
 	lowerCase(type, len);
 
-	if(strncmp(type, "minute", len) == 0) {
+	if(strncmp(type, "minute", len) == 0)
 		return 1;
-	}
-	else if(strncmp(type, "hour", len) == 0) {
+	else if(strncmp(type, "hour", len) == 0)
 		return 60;
-	}
-	else if(strncmp(type, "day", len) == 0) {
+	else if(strncmp(type, "day", len) == 0)
 		return 1440;
-	}
-	else {
+	else
 		return -1;
-	}
 }
 
 /**
@@ -327,9 +315,8 @@ int multiplierForType(char* type)
 int onlyDigits(char *input, size_t len)
 {
 	for(size_t i = 0 ; i < len ; i++) {
-		if(!isdigit(input[i])) {
+		if(!isdigit(input[i]))
 			return 0;
-		}
 	}
 	return 1;
 }
@@ -360,18 +347,18 @@ void increaseTime(int min, struct tm* time)
  */
 TIME_CMP compareDate(struct tm* time, struct tm* spec)
 {
-	if(!time || time->tm_year+time->tm_mon+time->tm_mday == 0) {
+	if(!time || time->tm_year+time->tm_mon+time->tm_mday == 0)
 		return TIME_ERROR;
-	}
-	if(encodeDay(time) > encodeDay(spec)) {
+
+	if(encodeDay(time) > encodeDay(spec))
 		return TIME_SMALLER;
-	}
-	if(encodeDay(time) < encodeDay(spec)) {
+
+	if(encodeDay(time) < encodeDay(spec))
 		return TIME_BIGGER;
-	}
-	if(encodeDay(time) == encodeDay(spec)) {
+
+	if(encodeDay(time) == encodeDay(spec))
 		return TIME_EQUAL;
-	}
+
 	return TIME_ERROR;
 }
 
@@ -388,18 +375,18 @@ TIME_CMP compareDate(struct tm* time, struct tm* spec)
  */
 TIME_CMP compareTime(struct tm* time, struct tm* spec)
 {
-	if(!time || time->tm_year+time->tm_mon+time->tm_mday == 0) {
+	if(!time || time->tm_year+time->tm_mon+time->tm_mday == 0)
 		return TIME_ERROR;
-	}
-	if(encode(time) > encode(spec)) {
+
+	if(encode(time) > encode(spec))
 		return TIME_SMALLER;
-	}
-	if(encode(time) < encode(spec)) {
+
+	if(encode(time) < encode(spec))
 		return TIME_BIGGER;
-	}
-	if(encode(time) == encode(spec)) {
+
+	if(encode(time) == encode(spec))
 		return TIME_EQUAL;
-	}
+
 	return TIME_ERROR;
 }
 
@@ -476,9 +463,9 @@ int getDate(struct tm *date, time_t rawtime)
 {
 	struct tm *temp = NULL;
 	temp = localtime(&rawtime);
-	if(temp == NULL) {
+	if(temp == NULL)
 		return -1;
-	}
+
 	date->tm_year = temp->tm_year;
 	date->tm_mon = temp->tm_mon;
 	date->tm_mday = temp->tm_mday;
@@ -507,9 +494,8 @@ int notifyError(struct error* error)
 		snprintf(command, MAX_MSG,
 				"notify-send 'CSW Error-code:%d at line:%d' '%s' --icon=dialog-error",
 				error->error_code[i], error->rowindex[i], error->error_msg[i]);
-		if(sendNotification(command) != 0) {
+		if(sendNotification(command) != 0)
 			return -1;
-		}
 	}
 	return 0;
 }
@@ -529,18 +515,16 @@ int sendNotification(char* str)
 
 	errno = 0;
 	command_output = popen(str, "r");
-	if(!command_output) {
+	if(!command_output)
 		return -1;
-	}
-	if(errno != 0) {
+
+	if(errno != 0)
 		return -1;
-	}
 
 	while(fgets(string[index], MAX_ROW, command_output) != NULL) {
 		errno = 0;
-		if(errno != 0) {
+		if(errno != 0)
 			return -1;
-		}
 		index++;
 	}
 	pclose(command_output);

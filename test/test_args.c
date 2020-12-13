@@ -64,7 +64,7 @@ void test_getArgs(void)
 	for(int i = 0 ; i < ARG_TEST ; i++) {
 		verbose = 0;
 		result[i] = getArgs(&test_flags[i], test_argc[i], test_argv[i],
-							opt_string);	
+							opt_string);
 		TEST_ASSERT_EQUAL_INT(exp_delay[i], test_flags[i].delay);
 		TEST_ASSERT_EQUAL_INT(exp_verbose[i], verbose);
 		TEST_ASSERT_EQUAL_INT(exp_cancel[i], test_flags[i].cancel_on);

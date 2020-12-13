@@ -25,20 +25,14 @@ void test_lower_case(void)
 
 void test_stripChar(void)
 {
-	char test[7][DATE+4] = {{" m o "},
-						    {"2019-03 -10"},
-							{"h a us,"},
-							{"   "},
-							{"2019-10-03"},
-							{"    ber t    "},
-							{"mo, tu, we, th"}};
-	char expect_string[7][DATE+2] = {	{"mo"},
-						   	  			{"2019-03-10"},
-						   	  		 	{"haus,"},
-						   	  		 	{""},
-						   	  		 	{"2019-10-03"},
-						   	  		 	{"bert"},
-										{"mo,tu,we,th"}};
+	char test[7][DATE+4] = {
+		{" m o "}, {"2019-03 -10"}, {"h a us,"}, {"   "},
+		{"2019-10-03"}, {"    ber t    "}, {"mo, tu, we, th"}
+	};
+	char expect_string[7][DATE+2] = {
+		{"mo"}, {"2019-03-10"}, {"haus,"}, {""},
+		{"2019-10-03"}, {"bert"}, {"mo,tu,we,th"}
+	};
 	int result_size[7] = {0};
 	int expect_size[7] = {2, 10, 5, 0, 10, 4, 11};
 	char sep = ' ';
@@ -48,10 +42,9 @@ void test_stripChar(void)
 		result_size[i] = strnlen(test[i], MAX_ROW); 
 	}
 	TEST_ASSERT_EQUAL_INT_ARRAY_MESSAGE(expect_size, result_size, 7,
-										"size doesnt match expection");
-	for(int j = 0 ; j < 7 ; j++) {
+					    "size doesnt match expection");
+	for(int j = 0 ; j < 7 ; j++)
 		TEST_ASSERT_EQUAL_STRING(expect_string[j], test[j]);
-	}
 }
 
 void test_contextValidation(void)
@@ -60,15 +53,12 @@ void test_contextValidation(void)
 	char good_option[5] = {"work"};
 	char bad_option[4] = {"red"};
 
-	TEST_ASSERT_EQUAL_INT_MESSAGE(0, contextValidation(&option,
-														&good_option[0]),
-			"The context work should be found!");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(1, contextValidation(&option,
-														&bad_option[0]),
-									"red should not return 1 in (work,free)");
-	TEST_ASSERT_EQUAL_INT_MESSAGE(1, contextValidation(&option,
-														""),
-									"empty input should return 1");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, contextValidation(&option, &good_option[0]),
+				      "The context work should be found!");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, contextValidation(&option, &bad_option[0]),
+				      "red should not return 1 in (work,free)");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, contextValidation(&option, ""),
+				      "empty input should return 1");
 }
 
 #define ZONE_TEST 5
@@ -253,12 +243,12 @@ void test_compareTime(void)
 		TIME_SMALLER,
 		TIME_EQUAL,
 		TIME_SMALLER,
-		TIME_ERROR	
+		TIME_ERROR
 	};
 
-	for(int i = 0 ; i < 8 ; i++) {
+	for(int i = 0 ; i < 8 ; i++)
 		result[i] = compareTime(&curr_time[i], &spec_time[i]);
-	}
+
 	TEST_ASSERT_EQUAL_INT_ARRAY(expect, result, 8);
 }
 
@@ -293,9 +283,8 @@ void test_getDate(void)
 		}
 	};
 
-	for(int i = 0 ; i < 4 ; i++) {
+	for(int i = 0 ; i < 4 ; i++)
 		result[i] = getDate(&test_tm[i], test_time[i]);
-	}
 
 	TEST_ASSERT_EQUAL_INT_ARRAY(expected, result, 4);
 	for(int i = 0 ; i < 4 ; i++) {
@@ -325,9 +314,9 @@ void test_parseTimeSpan(void)
 	int result[PAR_TEST] =  {0};
 	int expected[PAR_TEST] = {30, 60, -1, 30, 72, -1, -1, 720, 10};
 
-	for(int i = 0 ; i < PAR_TEST ; i++) {
+	for(int i = 0 ; i < PAR_TEST ; i++)
 		result[i] = parseTimeSpan(test_string[i]);
-	}
+
 	TEST_ASSERT_EQUAL_INT_ARRAY(expected, result, PAR_TEST);
 }
 
@@ -341,9 +330,9 @@ void test_multiplierForType(void)
 	int result[MUL_TEST] = {0};
 	int expected[MUL_TEST] = {60, 60, 1, 1, 1, 1440, 1440, -1, -1, -1, -1};
 
-	for(int i = 0 ; i < MUL_TEST ; i++) {
+	for(int i = 0 ; i < MUL_TEST ; i++)
 		result[i] = multiplierForType(test_input[i]);
-	}
+
 	TEST_ASSERT_EQUAL_INT_ARRAY(expected, result, MUL_TEST);
 }
 

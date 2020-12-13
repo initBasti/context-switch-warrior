@@ -30,9 +30,9 @@ extern size_t strnlen (__const char *__string, size_t __maxlen);
 struct substr *allocateSubstring()
 {
 	struct substr *new = calloc(1, sizeof(struct substr));
-	if(!new) {
+	if(!new)
 		return NULL;
-	}
+
 	memset(new->member, 0, MAX_FIELD);
 	new->next = NULL;
 	return new;
@@ -67,9 +67,9 @@ int addSubstring(struct substr *head, char *input, char sep)
 	int in_len = strnlen(input, MAX_EXCL_LINE);
 	int mem_len = 0;
 
-	if(in_len<=1 || in_len>MAX_FIELD) {
+	if(in_len<=1 || in_len>MAX_FIELD)
 		return -1;
-	}
+
 	if(strnlen(head->member, MAX_EXCL_LINE)<=1) {
 		stripChar(input, sep);
 		strncpy(head->member, input, in_len+1);
@@ -79,9 +79,9 @@ int addSubstring(struct substr *head, char *input, char sep)
 	for(struct substr *ptr = head ; ptr != NULL ; ptr=ptr->next){
 		if(ptr->next == NULL) {
 			ptr->next = allocateSubstring();
-			if(!ptr->next) {
+			if(!ptr->next)
 				return -1;
-			}
+
 			stripChar(input, sep);
 			mem_len = strnlen(input, MAX_ROW);
 			strncpy(ptr->next->member, input, mem_len);
@@ -113,9 +113,8 @@ int getSubstring(char* input, struct substr* head, int *amount, char sep)
 	int copy_size = 0;
 	int index = 0;
 
-	if(length <= 1) {
+	if(length <= 1)
 		goto error_return;
-	}
 
 	strncpy(subsets[index], input, length);
 
@@ -130,24 +129,24 @@ int getSubstring(char* input, struct substr* head, int *amount, char sep)
 
 	strncpy(options[0],subsets[0],copy_size);
 	/* possibly wasted lines of code */
-	if(!options[0]) {
+	if(!options[0])
 		goto error_return;
-	}
-	if(addSubstring(head, options[0], sep) != 0) {
+
+	if(addSubstring(head, options[0], sep) != 0)
 		goto error_return;
-	}
+
 	*amount = *amount + 1;
 
 	for(int i = 1 ; i <= index ; i++) {
 		length = strlen(subsets[i]+1);
-		if(i<index) {
+		if(i<index)
 			sub_length = strlen(subsets[i+1]+1);
-		}
+
 		copy_size = length - sub_length;
 		strncpy(options[i], subsets[i]+1, copy_size);
-		if(addSubstring(head, options[i], sep) == 0) {
+		if(addSubstring(head, options[i], sep) == 0)
 			*amount = *amount + 1;
-		}
+
 		sub_length = copy_size = 0;
 	}
 
@@ -172,15 +171,12 @@ int equalListElements(struct substr* head)
 	for(struct substr *ptr = head ; ptr != NULL ; ptr = ptr->next) {
 		if(size == 0) {
 			size = strnlen(ptr->member, MAX_FIELD);
-		}
-		else {
-			if((int)strnlen(ptr->member, MAX_FIELD) != size) {
+		} else {
+			if((int)strnlen(ptr->member, MAX_FIELD) != size)
 				return size - strnlen(ptr->member, MAX_FIELD);
-			}
 		}
-		if(size > DATE) {
+		if(size > DATE)
 			return (DATE) - size;
-		}
 	}
 	return 0;
 }

@@ -28,21 +28,18 @@ int delayFormatValidation(char *row)
 		row[row_length-1] = '\0';
 		row_length = strnlen(row, MAX_ROW);
 	}
-	if(row_length < DELAY_FORMAT_LEN-1 || row_length > DELAY_FORMAT_LEN) {
+	if(row_length < DELAY_FORMAT_LEN-1 || row_length > DELAY_FORMAT_LEN)
 		return -1;
-	}
 
 	if((ptr=strtok(row, "T")) != NULL) {
-		if(strnlen(ptr, MAX_ROW) != 10) {
+		if(strnlen(ptr, MAX_ROW) != 10)
 			return -1;
-		}
+
 		if((ptr=strtok(NULL, "Z")) != NULL) {
-			if(strnlen(ptr, MAX_ROW) < 4 || strnlen(ptr, MAX_ROW) > 5) {
+			if(strnlen(ptr, MAX_ROW) < 4 || strnlen(ptr, MAX_ROW) > 5)
 				return -1;
-			}
-			else {
+			else
 				return 0;
-			}
 		}
 	}
 	return -2;
@@ -66,36 +63,31 @@ int delayFormatValidation(char *row)
 DELAY_CHECK checkDelay(int flag, struct tm* delay, struct tm* time)
 {
 	TIME_CMP cmp_result = 0;
-	if(!time || time->tm_year + time->tm_mon + time->tm_mday == 0) {
+	if(!time || time->tm_year + time->tm_mon + time->tm_mday == 0)
 		return ERROR;
-	}
 
 	if(delay->tm_year+delay->tm_mon+delay->tm_mday == 0) {
-		if(flag > 0) {
+		if(flag > 0)
 			return VALID_PLUS_NEW;
-		}
-		else{
+		else
 			return VALID;
-		}
 	}
 	cmp_result = compareTime(time, delay);
 	switch(cmp_result) {
 		case TIME_EQUAL:
 		case TIME_SMALLER:
-			if(flag > 0) {
+			if(flag > 0)
 				return INVALID_PLUS_NEW;
-			}
-			else {
+			else
 				return INVALID;
-			}
+
 			break;
 		case TIME_BIGGER:
-			if(flag > 0) {
+			if(flag > 0)
 				return VALID_PLUS_NEW;
-			}
-			else {
+			else
 				return VALID;
-			}
+
 			break;
 		default:
 			return ERROR;
@@ -112,9 +104,9 @@ DELAY_CHECK checkDelay(int flag, struct tm* delay, struct tm* time)
  */
 void buildDelayFormat(struct tm* time, char* format)
 {
-	if(time->tm_year+1900 + time->tm_mon + time->tm_mday < 2000) {
+	if(time->tm_year+1900 + time->tm_mon + time->tm_mday < 2000)
 		return;
-	}
+
 	time->tm_isdst = -1;
 	snprintf(format, MAX_ROW, "Delay=%4d-%02d-%02dT%02d:%02dZ\n",
 			time->tm_year+1900, time->tm_mon+1, time->tm_mday,
@@ -142,25 +134,23 @@ int parseDelay(struct tm *delay, char *str)
 	int hour = 0;
 	int min = 0;
 
-	if(strnlen(str, MAX_ROW) > DELAY_FORMAT_LEN) {
+	if(strnlen(str, MAX_ROW) > DELAY_FORMAT_LEN)
 		return -2;
-	}
 
 	sscanf(str, "%4d-%2d-%2dT%2d:%2dZ",
 			&year, &mon, &day, &hour, &min);
 
-	if(year == 0) {
+	if(year == 0)
 		return -2;
-	}
-	if(year / 1000 < 1) {
+
+	if(year / 1000 < 1)
 		return -2;
-	}
-	if(mon > 12 || day > 31 || hour > 24 || min > 60) {
+
+	if(mon > 12 || day > 31 || hour > 24 || min > 60)
 		return -1;
-	}
-	if(mon < 0 || day < 0 || hour < 0 || min < 0) {
+
+	if(mon < 0 || day < 0 || hour < 0 || min < 0)
 		return -1;
-	}
 
 	delay->tm_year = year-1900;
 	delay->tm_mon = mon-1;

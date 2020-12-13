@@ -29,34 +29,27 @@ extern int pclose(FILE* stream);
  */
 EXCLUSION_STATE switchExclusion(struct exclusion* excl, struct tm *date)
 {
-	if(excl == NULL) {
+	if(excl == NULL)
 		return EXCLUSION_ERROR;
-	}
+
 	for(int i = 0 ; i < excl->amount ; i++) {
 		if(strncmp(excl->type_name[i], "perm", 5) == 0) {
 			for(int j = 0 ; j<excl->type[i].list_len ; j++) {
-				if(date->tm_wday == excl->type[i].weekdays[j]-1) {
+				if(date->tm_wday == excl->type[i].weekdays[j]-1)
 					return EXCLUSION_MATCH;
-				}
 			}
-		}
-		else if(strncmp(excl->type_name[i], "temp", 5) == 0) {
+		} else if(strncmp(excl->type_name[i], "temp", 5) == 0) {
 			if(strncmp(excl->type[i].sub_type, "list", 5) == 0) {
 				for(int j = 0 ; j < excl->type[i].list_len ; j++) {
-					if(compareDate(&excl->type[i].single_days[j], date) == TIME_EQUAL){
+					if(compareDate(&excl->type[i].single_days[j], date) == TIME_EQUAL)
 						return EXCLUSION_MATCH;
-					}
 				}
-			}
-			else if(strncmp(excl->type[i].sub_type, "range", 6) == 0) {
-				if(rangeMatch(&excl->type[i], date) == 0) {
+			} else if(strncmp(excl->type[i].sub_type, "range", 6) == 0) {
+				if(rangeMatch(&excl->type[i], date) == 0)
 					return EXCLUSION_MATCH;
-				}
-			}
-			else if(strncmp(excl->type[i].sub_type, "solo", 5) == 0) {
-				if(compareDate(&excl->type[i].single_days[0], date) == TIME_EQUAL){
+			} else if(strncmp(excl->type[i].sub_type, "solo", 5) == 0) {
+				if(compareDate(&excl->type[i].single_days[0], date) == TIME_EQUAL)
 					return EXCLUSION_MATCH;
-				}
 			}
 		}
 	}
@@ -83,9 +76,9 @@ SWITCH_STATE switchContext(struct config* conf, int time, char* new_context,
 	int start_time = 0;
 	int end_time = 0;
 
-	if(conf == NULL) {
+	if(conf == NULL)
 		return SWITCH_FAILURE;
-	}
+
 	for(int i = 0 ; i < conf->zone_amount ; i++) {
 		start_time = (conf->ztime[i].start_hour)*60 +
 						(conf->ztime[i].start_minute);
@@ -117,26 +110,26 @@ SWITCH_STATE switchContext(struct config* conf, int time, char* new_context,
  */
 int rangeMatch(struct format_type *range, struct tm *date)
 {
-	if(range == NULL) {
+	if(range == NULL)
 		return -1;
-	}
+
 	struct tm start = range->holiday_start;
 	struct tm end = range->holiday_end;
-	if(date->tm_year < start.tm_year || date->tm_year > end.tm_year) {
+	if(date->tm_year < start.tm_year || date->tm_year > end.tm_year)
 		return 1;
-	}
-	if(date->tm_year == end.tm_year && date->tm_mon > end.tm_mon) {
+
+	if(date->tm_year == end.tm_year && date->tm_mon > end.tm_mon)
 		return 1;
-	}
-	if(date->tm_year == start.tm_year && date->tm_mon < start.tm_mon) {
+
+	if(date->tm_year == start.tm_year && date->tm_mon < start.tm_mon)
 		return 1;
-	}
-	if(date->tm_year == end.tm_year && date->tm_mon == end.tm_mon && date->tm_mday > end.tm_mday) {
+
+	if(date->tm_year == end.tm_year && date->tm_mon == end.tm_mon && date->tm_mday > end.tm_mday)
 		return 1;
-	}
-	if(date->tm_year == start.tm_year && date->tm_mon == start.tm_mon && date->tm_mday < start.tm_mday) {
+
+	if(date->tm_year == start.tm_year && date->tm_mon == start.tm_mon && date->tm_mday < start.tm_mday)
 		return 1;
-	}
+
 	return 0;
 }
 
@@ -167,11 +160,9 @@ int sendCommand(char *input)
 		token = strtok(NULL, " ");
 		if(strncmp(token, "not", 4) == 0) {
 			goto failure;
-		}
-		else if(strncmp(token, "set.", 4) == 0) {
+		} else if(strncmp(token, "set.", 4) == 0) {
 			goto success;
-		}
-		else{
+		} else{
 			fprintf(stderr,"Reaction from Taskwarrior:\n\n%s\n", buffer[index]);
 			goto failure;
 		}

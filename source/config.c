@@ -50,9 +50,9 @@ FILE_STATE findConfig(char* name, char* path)
 	}
 	name_len = strnlen(name, PATH_MAX);
 	user_len = strnlen(username, MAX_USER);
-	if(!username) {
+	if(!username)
 		return FILE_ERROR;
-	}
+
 	strncat(folder_path, username, user_len);
 	strncat(folder_path, "/.task/csw/", 12);
 	strncpy(config_path, folder_path, PATH_MAX);
@@ -91,8 +91,7 @@ FILE_STATE findConfig(char* name, char* path)
 	if(stat(config_path ,&s) == 0) {
 		strncpy(path, config_path, PATH_MAX);
 		return FILE_GOOD;
-	}
-	else {
+	} else {
 		return FILE_NOTFOUND;
 	}
 }
@@ -138,25 +137,22 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 
 	while(fgets(row[rows], MAX_ROW, config_file) != NULL) {
 		eof=feof(config_file);
-		if(eof != 0) {
+		if(eof != 0)
 			goto read_success;
-		}
+
 		ferr=ferror(config_file);
-		if(ferr != 0) {
+		if(ferr != 0)
 			goto read_failed;
-		}
 
-
-		if(row[rows][(int)strnlen(row[rows], MAX_ROW)-1] == '\n') {
+		if(row[rows][(int)strnlen(row[rows], MAX_ROW)-1] == '\n')
 			row[rows][(int)strnlen(row[rows], MAX_ROW)-1] = '\0';
-		}
 
-		if(strnlen(row[rows], MAX_ROW) > 0) {
+		if(strnlen(row[rows], MAX_ROW) > 0)
 			rows++;
-		}
-		if(rows == MAX_ZONES+MAX_EXCLUSION+3) {
+
+		if(rows == MAX_ZONES+MAX_EXCLUSION+3)
 			break;
-		}
+
 		errno = 0;
 	}
 
@@ -168,8 +164,7 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 			continue;
 		}
 		option[i] = allocateSubstring(option[i]);
-		if((substr_state=getSubstring(row[i], option[i],
-										&amount, ';')) != 0) {
+		if((substr_state=getSubstring(row[i], option[i], &amount, ';')) != 0) {
 			fprintf(stderr,"ERROR: reading substrings failed %d!\n",
 					substr_state);
 			goto read_failed;
@@ -200,9 +195,9 @@ CONFIG_STATE readConfig(struct configcontent* config, struct error* error,
 	}
 
 	read_success:
-		for(int i = 0 ; i < rows ; i++) {
+		for(int i = 0 ; i < rows ; i++)
 			freeSubstring(option[i]);
-		}
+
 		fclose(config_file);
 		return CONFIG_SUCCESS;
 	read_failed:
@@ -252,9 +247,9 @@ OPTION_STATE getOption(struct configcontent *config, char *option, int index)
 
 	lowerCase(sub_option->member, strnlen(sub_option->member, MAX_ROW));
 
-	if(amount <= 1) {
+	if(amount <= 1)
 		goto option_novalue;
-	}
+
 	if(amount > 2) {
 		freeSubstring(sub_option);
 		return OPTION_ERROR;
@@ -267,8 +262,7 @@ OPTION_STATE getOption(struct configcontent *config, char *option, int index)
 					config->amount += 1;
 					current = config->amount-1;
 					config->rowindex[current] = index;
-				}
-				else {
+				} else {
 					current = config->amount-1;
 				}
 				config->sub_option_amount[current] += 1;
@@ -279,8 +273,7 @@ OPTION_STATE getOption(struct configcontent *config, char *option, int index)
 						sub_option->next->member, MAX_OPTION);
 
 				goto option_good;
-			}
-			else {
+			} else {
 				goto option_novalue;
 			}
 		}
@@ -314,12 +307,11 @@ OPTION_STATE getOption(struct configcontent *config, char *option, int index)
 int indexInList(struct configcontent *config, int index)
 {
 	for(int i = 0 ; i < config->amount ; i++) {
-		if(index < config->rowindex[i]) {
+		if(index < config->rowindex[i])
 			return -1;
-		}
-		if(config->rowindex[i] == index) {
+
+		if(config->rowindex[i] == index)
 			return 0;
-		}
 	}
 	return -1;
 }
@@ -350,9 +342,9 @@ int syncConfig(struct config *config, struct flags *flag,struct tm *time)
 		case VALID:
 			break;
 		case VALID_PLUS_NEW:
-			if(config->delay.tm_year+config->delay.tm_mon+config->delay.tm_mday == 0) {
+			if(config->delay.tm_year+config->delay.tm_mon+config->delay.tm_mday == 0)
 				copyTm(&config->delay, time);
-			}
+
 			increaseTime(flag->delay, &config->delay);
 			break;
 		case INVALID_PLUS_NEW:
@@ -365,9 +357,8 @@ int syncConfig(struct config *config, struct flags *flag,struct tm *time)
 		case ERROR:
 			return -1;
 	};
-	if(check != VALID && check != ERROR) {
+	if(check != VALID && check != ERROR)
 		change = 1;
-	}
 
 	if(flag->cancel_on == 0 || flag->cancel_on == 1) {
 		config->cancel = flag->cancel_on;
@@ -383,9 +374,8 @@ int syncConfig(struct config *config, struct flags *flag,struct tm *time)
 		change = 1;
 	}
 
-	if(checkExclusion(&config->excl, time) == 1) {
+	if(checkExclusion(&config->excl, time) == 1)
 		change = 1;
-	}
 
 	return change;
 }
@@ -408,9 +398,8 @@ int writeConfig(struct config* config, char* path)
 
 	errno = 0;
 	new_file = fopen(tmp_name, "w");
-	if(!new_file) {
+	if(!new_file)
 		return -1;
-	}
 
 	for(int i = 0 ; i < config->zone_amount ; i++) {
 		snprintf(buffer, MAX_ROW, "Zone=%s;Start=%02d:%02d;End=%02d:%02d;Context=%s\n",
@@ -418,7 +407,7 @@ int writeConfig(struct config* config, char* path)
 				config->ztime[i].start_minute, config->ztime[i].end_hour,
 				config->ztime[i].end_minute, config->zone_context[i]);
 		fprintf(new_file, "%s", buffer);
-	}	
+	}
 	for(int i = 0 ; i < config->excl.amount ; i++) {
 		buildExclFormat(&config->excl.type[i], config->excl.type_name[i], buffer);
 		fprintf(new_file, "%s", buffer);
@@ -477,9 +466,8 @@ int parseConfig(struct configcontent *content, struct error* error,
 	};
 
 	context = initContext(context);
-	if(!context) {
+	if(!context)
 		return -1;
-	}
 
 	for(int i = 0 ; i < content->amount ; i++) {
 		for(int j = 0 ; j < content->sub_option_amount[i] ; j++) {
@@ -562,21 +550,19 @@ int parseConfig(struct configcontent *content, struct error* error,
 					continue;
 				case FIND_CANCEL:
 					result = strncmp(content->option_value[i][j], "on", 3);
-					if(result == 0) {
+					if(result == 0)
 						config->cancel = 1;
-					}
-					else {
+					else
 						config->cancel = 0;
-					}
+
 					continue;
 				case FIND_NOTIFY:
 					result = strncmp(content->option_value[i][j], "on", 3);
-					if(result == 0) {
+					if(result == 0)
 						config->notify = 1;
-					}
-					else {
+					else
 						config->notify = 0;
-					}
+
 					continue;
 				case FIND_INTERVAL:
 					result = parseTimeSpan(content->option_value[i][j]);
@@ -680,12 +666,10 @@ int dirExist(char *path)
 		}
 	}
 	else {
-		if(S_ISDIR(s.st_mode)) {
+		if(S_ISDIR(s.st_mode))
 			return 0;
-		}
-		else {
+		else
 			return 1;
-		}
 	}
 }
 
@@ -703,9 +687,8 @@ int valueForKey(struct keyvalue* table, char* str)
 
 	for(int i = 0 ; i < VALID_OPTIONS ; i++) {
 		temp = &table[i];
-		if(strncmp(str, temp->key, MAX_OPTION_NAME) == 0) {
+		if(strncmp(str, temp->key, MAX_OPTION_NAME) == 0)
 			return temp->value;
-		}
 	}
 	return BAD_KEY;
 }

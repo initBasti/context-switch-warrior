@@ -20,10 +20,8 @@ void createTestCron(void) {
 		.cron_env=1
 	};
 	printf("do set up\n");
-	if(writeCrontab("notify-send 'findCrontab test' -t 1000\n", 1, &test_env) == -1) {
+	if(writeCrontab("notify-send 'findCrontab test' -t 1000\n", 1, &test_env) == -1)
 		return;
-	}
-	
 }
 
 void deleteTestCron(void) {
@@ -32,9 +30,8 @@ void deleteTestCron(void) {
 		.path="/usr/bin",
 		.cron_env=1
 	};
-	if(deleteCrontab("notify-send 'findCrontab test' -t 1000", &test_env) == -1) {
+	if(deleteCrontab("notify-send 'findCrontab test' -t 1000", &test_env) == -1)
 		printf("WARNING dummy cronjob could not be deleted\n");
-	}
 }
 
 #define CRON_BUILD_TEST 5
@@ -60,9 +57,8 @@ void test_buildCronCommand(void)
 	int result[CRON_BUILD_TEST] = {0};
 	int expect[CRON_BUILD_TEST] = {0, 0, -1, -1, -2};
 
-	for(int i = 0 ; i < CRON_BUILD_TEST ; i++) {
+	for(int i = 0 ; i < CRON_BUILD_TEST ; i++)
 		result[i] = buildCronCommand(term[i], interval[i], &environment[i], command[i]);
-	}
 
 	for(int i = 0 ; i < CRON_BUILD_TEST ; i++) {
 		TEST_ASSERT_EQUAL_INT(expect[i], result[i]);
@@ -79,9 +75,8 @@ void test_checkTerm(void)
 	int result[CHECK_TERM_TEST] = {0};
 	int expect[CHECK_TERM_TEST] = {0, 0, -1, -1};
 
-	for(int i = 0 ; i < CHECK_TERM_TEST ; i++) {
+	for(int i = 0 ; i < CHECK_TERM_TEST ; i++)
 		result[i] = checkTerm(term[i]);
-	}
 
 	TEST_ASSERT_EQUAL_INT_ARRAY(expect, result, CHECK_TERM_TEST);
 }
@@ -97,13 +92,11 @@ void test_buildCronInterval(void)
 		"*/15 */1 * * *"
 	};
 
-	for(int i = 0 ; i < INTERVAL_CRON_TEST ; i++) {
+	for(int i = 0 ; i < INTERVAL_CRON_TEST ; i++)
 		buildCronInterval(interval[i], output[i]);
-	}
 
-	for(int i = 0 ; i < INTERVAL_CRON_TEST ; i++) {
+	for(int i = 0 ; i < INTERVAL_CRON_TEST ; i++)
 		TEST_ASSERT_EQUAL_STRING(expect_output[i], output[i]);
-	}
 }
 
 void test_readCrontab(void)
@@ -133,9 +126,9 @@ void test_readCrontab(void)
 	int size_user = 0;
 
 	username = getenv("USER");
-	if(!username) {
+	if(!username)
 		return;
-	}
+
 	size_user = strlen(username);
 
 	/* Create the test files */
@@ -150,9 +143,8 @@ void test_readCrontab(void)
 	}
 
 	for(int j = 0 ; j < MAX_AMOUNT_OPTIONS ; j++) {
-		if(test_buffer[j][0] != '\0') {
+		if(test_buffer[j][0] != '\0')
 			fprintf(test_file, "%s", test_buffer[j]);
-		}
 	}
 	rewind(test_file);
 	if(fclose(test_file) == EOF) {
@@ -174,10 +166,9 @@ void test_readCrontab(void)
 	remove(path);
 
 	TEST_ASSERT_EQUAL_INT(expect, result);
-	
-	for(int i = 0 ; i < MAX_CRON_JOBS ; i++) {
+
+	for(int i = 0 ; i < MAX_CRON_JOBS ; i++)
 		TEST_ASSERT_EQUAL_STRING(expect_buffer[i], buffer[i]);
-	}
 }
 
 #define CRONTAB_CHECK_TEST 8
@@ -232,9 +223,8 @@ void test_checkCrontab(void)
 	int result[CRONTAB_CHECK_TEST] = {0};
 	int expect[CRONTAB_CHECK_TEST] = {0, -1, -1, -1, 0, -1, -1, 0};
 
-	for(int i = 0 ; i < CRONTAB_CHECK_TEST ; i++) {
+	for(int i = 0 ; i < CRONTAB_CHECK_TEST ; i++)
 		result[i] = checkCrontab(term[i], MAX_CRON, input[i], &index[i]);
-	}
 
 	for(int i = 0 ; i < CRONTAB_CHECK_TEST ; i++) {
 		snprintf(msg, MAX_ROW, "[%d. result expect: %d was %d]",
