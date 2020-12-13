@@ -36,4 +36,4 @@ make test
 ---
 
 #### Found Bugs or want to contribute?
-please contact me @ sebastian.fricke.linux@gmx.de
+please contact me @ sebastian.fricke.linux@gmail.de
