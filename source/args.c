@@ -158,6 +158,9 @@ void showHelp()
 	printf("-n - notify (Set if csw should send notifications)\n");
 	printf("     requires an argument, valid values:\n");
 	printf("     1(yes) or 0(no) (change the behavior permanently)\n");
+	printf("-i - interval (change the cronjob interval)\n");
+	printf("     requires an argument, valid values:\n");
+	printf("     integer number (minutes)\n");
 }
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
