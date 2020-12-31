@@ -29,8 +29,8 @@
 #define MAX_CONTEXT 10
 #define MAX_ARGUMENTS 12
 #define MAX_CRON_JOBS 50
-#define MAX_CRON 265
-#define MAX_ENV 150 
+#define MAX_CRON 512
+#define MAX_ENV 300 
 #define MAX_TERM 100
 #define MAX_RE_PATTERN 150
 #define MAX_INTERVAL_STR 15
