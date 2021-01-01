@@ -96,7 +96,7 @@ struct exclusion {
 struct config {
 	char zone_name[MAX_ZONES][MAX_FIELD];
 	struct zonetime ztime[MAX_ZONES];
-	char zone_context[MAX_ZONES][MAX_FIELD];
+	char zone_context[MAX_ZONES][MAX_COMMAND];
 	int zone_amount;
 	struct exclusion excl;
 	struct tm delay;

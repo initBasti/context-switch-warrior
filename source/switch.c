@@ -57,21 +57,21 @@ EXCLUSION_STATE switchExclusion(struct exclusion* excl, struct tm *date)
 }
 
 /**
- * @brief	compare the current date, with the zone settings in the config 
+ * @brief	compare the current date, with the zone settings in the config
  *
  * On a match return the context from the zone and a signal for further execution
  *
  * @param[in]	conf	config structure instance pointer
  * @param[in]	time	current time in minutes
  * @param[in]	current_context	active context in taskwarrior
- * @param[out]	new_context	context found in the active zone	
- * 
+ * @param[out]	new_context	context found in the active zone
+ *
  * @retval	SWITCH_SUCCESS	current & new context differ
  * @retval	SWITCH_NOTNEEDED	current & new context are equal
  * @retval	SWITCH_FAILURE	time is not within any zone
  */
 SWITCH_STATE switchContext(struct config* conf, int time, char* new_context,
-							char* current_context)
+			   char* current_context)
 {
 	int start_time = 0;
 	int end_time = 0;
@@ -85,12 +85,12 @@ SWITCH_STATE switchContext(struct config* conf, int time, char* new_context,
 		end_time = (conf->ztime[i].end_hour)*60 +
 						(conf->ztime[i].end_minute);
 		if(time >= start_time && time <= end_time) {
-			if(strncmp(conf->zone_context[i], current_context, MAX_FIELD) == 0) {
+			if(strncmp(conf->zone_context[i], current_context, MAX_COMMAND) == 0) {
 				strncpy(new_context, "none", 5);
 				return SWITCH_NOTNEEDED;
 			}
 			else {
-				strncpy(new_context, conf->zone_context[i], MAX_FIELD);
+				strncpy(new_context, conf->zone_context[i], MAX_COMMAND);
 				return SWITCH_SUCCESS;
 			}
 		}
