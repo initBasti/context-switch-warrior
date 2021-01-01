@@ -25,7 +25,7 @@ void test_lower_case(void)
 
 void test_stripChar(void)
 {
-	char test[7][DATE+4] = {
+	char test[7][DATE+5] = {
 		{" m o "}, {"2019-03 -10"}, {"h a us,"}, {"   "},
 		{"2019-10-03"}, {"    ber t    "}, {"mo, tu, we, th"}
 	};
@@ -39,7 +39,7 @@ void test_stripChar(void)
 
 	for(int i = 0 ; i < 7 ; i++) {
 		stripChar(&test[i][0], sep);
-		result_size[i] = strnlen(test[i], MAX_ROW); 
+		result_size[i] = strnlen(test[i], MAX_ROW);
 	}
 	TEST_ASSERT_EQUAL_INT_ARRAY_MESSAGE(expect_size, result_size, 7,
 					    "size doesnt match expection");
