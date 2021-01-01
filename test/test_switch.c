@@ -113,7 +113,7 @@ void test_switchExclusion(void)
 
 void test_switchContext(void)
 {
-	struct config config[TESTS/2] = {
+	struct config config[2] = {
 	{
 		.zone_name[0] = {"Test1"},
 		.ztime[0] = {
@@ -173,13 +173,13 @@ void test_switchContext(void)
 	int min[TESTS*2] = {315, 605, 903, 150, 366, 480, 550, 735};
 	char example_context[TESTS/2][MAX_COMMAND] = {"work", "study"};
 	char command[TESTS*8][MAX_COMMAND] = {{0}};
-	char expected_command[TESTS*8][MAX_COMMAND] = {
+	const char expected_command[TESTS*8][MAX_COMMAND] = {
 		{"none"}, {"none"}, {"work"}, {"work"}, {"study"}, {"none"},
-		{"none"}, {"work"}, {"none"}, {"none"}, {"none"}, {"study"},
-		{"none"}, {"none"}, {"none"}, {"none"}, {"none"}, {"none"},
-		{"work"}, {"study"}, {"freetime"}, {"none"}, {"freetime"},
-		{"study"}, {"none"}, {"none"}, {"none"}, {"none"}, {"none"},
-		{"none"}, {"work"}, {"none"}
+		{"none"}, {"work"}, {""}, {"study"}, {""}, {"none"},
+		{""}, {""}, {""}, {""}, {"none"}, {"none"},
+		{"work"}, {"work"}, {"freetime"}, {"none"}, {"freetime"},
+		{"work"}, {""}, {""}, {""}, {""}, {"none"},
+		{""}, {"work"}, {""}
 	};
 	SWITCH_STATE result[TESTS*8] = {0};
 	SWITCH_STATE expected[TESTS*8] = {
@@ -209,7 +209,7 @@ void test_switchContext(void)
 	}
 	TEST_ASSERT_EQUAL_INT_ARRAY(expected, result, TESTS*8);
 	for(int i = 0 ; i<TESTS*8 ; i++)
-		TEST_ASSERT_EQUAL_STRING(expected_command, command);
+		TEST_ASSERT_EQUAL_STRING(expected_command[i], command[i]);
 }
 
 void test_rangeMatch(void)
