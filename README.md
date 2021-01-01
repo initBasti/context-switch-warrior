@@ -21,6 +21,7 @@ Add-on for **taskwarrior** to *switch* the task **context** depending on the *da
 * getopt.h
 * notify-send
 * crontab
+* doxygen
 
 ---
 
