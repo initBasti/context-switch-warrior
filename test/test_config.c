@@ -34,7 +34,7 @@ void test_dirExist_bad(void)
 
 void test_dirExist_is_file(void)
 {
-	TEST_ASSERT_EQUAL_INT(1, dirExist("/usr/include/glib-2.0/glib.h"));
+	TEST_ASSERT_EQUAL_INT(1, dirExist("/usr/bin/ls"));
 }
 
 void test_findConfig_good(void)
