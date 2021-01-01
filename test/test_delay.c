@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include "../unity/src/unity.h"
 #include "../source/include/delay.h"
 #include <string.h>
