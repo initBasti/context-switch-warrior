@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 		.zone_name={{0}}, .ztime={{0}}, .zone_context={{0}}, .zone_amount=0,
 		.excl={
 			.type={{.weekdays={0}, .single_days={{0}}, .holiday_start={0},
-					.holiday_end={0}, .list_len=0, .sub_type={0}}},
+				.holiday_end={0}, .list_len=0, .sub_type={0}}},
 			.type_name={{0}}, .amount=0, },
 		.delay={0}, .cancel=0, .notify=0, .interval=0 }; 
 	struct error error = {
@@ -209,12 +209,11 @@ int main(int argc, char **argv) {
 
 	if(verbose) {
 		printf("current date & time : %d%s day of the week\t%4d-%02d-%02dT%02d:%02dZ\n",
-				datetime.tm_wday, datetime.tm_wday==1?
-				"st":datetime.tm_wday==2?"nd":
-				datetime.tm_wday==3?"rd":"th",
-				datetime.tm_year+1900, datetime.tm_mon+1,
-				datetime.tm_mday, datetime.tm_hour,
-				datetime.tm_min);
+		       datetime.tm_wday, datetime.tm_wday==1?
+		       "st":datetime.tm_wday==2?"nd":
+		       datetime.tm_wday==3?"rd":"th",
+		       datetime.tm_year+1900, datetime.tm_mon+1,
+		       datetime.tm_mday, datetime.tm_hour, datetime.tm_min);
 	}
 
 	if(config.delay.tm_year + config.delay.tm_mon)
@@ -230,7 +229,7 @@ int main(int argc, char **argv) {
 	}
 
 	switch_state = switchContext(&config, (datetime.tm_hour*60+datetime.tm_min),
-								&command[0], current_context);
+				     &command[0], current_context);
 	switch(switch_state) {
 		case SWITCH_SUCCESS:
 			if(sendCommand(command) != 0) {
