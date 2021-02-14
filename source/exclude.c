@@ -347,7 +347,7 @@ int parseDate(struct tm *date, char *input)
 }
 
 /**
- * @brief	check if the strong matches the HH:MM time format
+ * @brief	check if the string matches the HH:MM time format
  *
  * @param[in]	time_string	string in [HH:MM] format
  * @param[out]	hour	start/end _hour of ztime
